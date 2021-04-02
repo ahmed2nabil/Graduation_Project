@@ -1,10 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
+var session = require('express-session');
+var fileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser');
 const config = require('./config');
 const app = express();
 
+const port = process.env.PORT || 3000;
 var authenticate = require('./authenticate');
 //Routes 
 var indexRouter = require('./routes/index');
@@ -26,29 +29,23 @@ console.log('Connected correctly to database');
   console.log(err);
 });
 
+app.use(session({
+  name : 'session-id',
+  secret : 'hello-world!!',
+  saveUninitialized : false,
+  resave: false,
+  store: new fileStore()
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 
 app.use('/', indexRouter);
 app.use('/users',userRouter);
-
-function auth(req,res,next){
-  console.log(req.user);
-  if(!req.user){  //make sure of cookies exists
-      var err = new Error("you are not authenticated!");
-      err.status = 403;
-      return next(err);
-  }
-  else {
-      next();
-  }
-}
-app.use(auth);
-
 app.use('/student',studentRouter);
 
 
-app.listen(3000,function(req,res){
+app.listen(port,function(req,res){
     console.log('Server is connected successfully');
 });

@@ -1,8 +1,8 @@
 var passport = require('passport');
-var localStartegy = require('passport-local').Strategy;
+var localStrategy = require('passport-local').Strategy;
 var Student = require('./models/student');
 
-exports.local = passport.use(new localStartegy(Student.authenticate())); //function authenticate supported by passport local -mongooses
+exports.local = passport.use(new localStrategy(Student.authenticate())); //function authenticate supported by passport local -mongooses
 
 //support the session 
 passport.serializeUser(Student.serializeUser());
