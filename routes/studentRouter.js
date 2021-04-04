@@ -9,10 +9,10 @@ studentRouter.use(bodyParser.json());
 
 studentRouter.post('/login',passport.authenticate('local'), (req,res) => {
     res.statusCode = 200;
-    res.setHeader('Content-Type','application/json');
-   res.json({success : true,status : 'You are succesfully logged in'});
+    // res.setHeader('Content-Type','application/json');
+//    res.json({success : true,status : 'You are succesfully logged in'});
 // console.log(req.user._id);
-// res.redirect('/student/'+ req.user._id);
+res.redirect('/student/'+ req.user._id);
   });
 
   function auth(req,res,next){

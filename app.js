@@ -29,6 +29,8 @@ console.log('Connected correctly to database');
   console.log(err);
 });
 
+
+
 app.use(session({
   name : 'session-id',
   secret : 'hello-world!!',
@@ -45,7 +47,16 @@ app.use('/', indexRouter);
 app.use('/users',userRouter);
 app.use('/student',studentRouter);
 
+//Handle production 
+if(process.env.NODE_ENV === "production"){
+  //for static folder
+  app.use(express.static(__dirname + '/public/'));
 
+  //handle single page app 
+  app.get(/.*/ ,(req,res) => {
+    res.sendFile(__dirname +'/public/index.html');
+  }); //get all routes..refer to any route at all  
+}
 app.listen(port,function(req,res){
     console.log('Server is connected successfully');
 });
