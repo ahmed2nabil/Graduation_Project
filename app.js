@@ -30,7 +30,7 @@ console.log('Connected correctly to database');
 });
 
 
-
+const url = config.mongoUrl;
 app.use(session({
   name : 'session-id',
   secret : 'hello-world!!',

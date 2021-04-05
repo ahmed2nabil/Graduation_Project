@@ -7,6 +7,7 @@ const courseGrade=new Schema({
     {type:mongoose.Schema.Types.ObjectId, 
     ref:'courses'
     },
+    
     grade:{type:Number, required:true},
     year:{type:Number, required:true}
 });

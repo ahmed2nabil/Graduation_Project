@@ -4,30 +4,23 @@ var passport = require('passport');
 const bodyParser = require('body-parser');
 var Students = require('../models/student');
 var Courses = require('../models/course');
+
+var authenticate = require('../authenticate');
 const studentRouter = express.Router();
 studentRouter.use(bodyParser.json());
 
+studentRouter.get('/',(req,res)=> {
+    res.send('This is student module');
+})
 studentRouter.post('/login',passport.authenticate('local'), (req,res) => {
+    var token = authenticate.getToken({_id: req.user._id});
     res.statusCode = 200;
-    // res.setHeader('Content-Type','application/json');
-//    res.json({success : true,status : 'You are succesfully logged in'});
-// console.log(req.user._id);
-res.redirect('/student/'+ req.user._id);
+    res.setHeader('Content-Type', 'application/json');
+    res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
 
-  function auth(req,res,next){
-    if(!req.user){  //make sure of cookies exists
-        var err = new Error("you are not authenticated!");
-        err.status = 403;
-        return next(err);
-    }
-    else {
-        next();
-    }
-  }
-studentRouter.use(auth);
 studentRouter.route('/:studentId')
-.get((req,res,next) => {
+.get(authenticate.verifyStudent,(req,res,next) => {
 
     //1- want to get student by id
     //console.log(req.params.studentId);
