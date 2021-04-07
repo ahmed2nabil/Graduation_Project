@@ -21,18 +21,14 @@ studentRouter.post('/login',passport.authenticate('local'), (req,res) => {
 
 studentRouter.route('/:studentId')
 .get(authenticate.verifyStudent,(req,res,next) => {
-
-    //1- want to get student by id
-    //console.log(req.params.studentId);
-    console.log(req.user._id);
-    console.log(req.params.studentId);
     if(req.user._id == req.params.studentId) {
    Students.findById(req.params.studentId)
    .populate('courseGrade.courseID')
    .then((student) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json(student);
+    const studentprofile = studentData(student) ;
+    res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
    else {
@@ -40,12 +36,6 @@ studentRouter.route('/:studentId')
     err.status = 403;
     return next(err);
    }
-    //2- get the array of grades 
-    //3- get course name from course_id inside the array of grades
-    //4- put it into array of objects ["course_name":"value","grade":"value"]
-    //5- send also the value of total_grade
-    //finished!!! 
-    // res.send('all grades for all courses');
 })
 .post((req,res,cb) => {
     res.statusCode = 403;
@@ -69,4 +59,21 @@ function auth(req,res,next){
         next();
     }
   }
+
+  function studentData(student) {
+      let data = {
+          name: student.name,
+          username: student.username,
+          courses :[]
+      };
+      let i =0;
+      student.courseGrade.forEach(element => {
+        data.courses[i] = {courseName:element.courseID.name,
+            courseTotalGrade : element.courseID.totalGrade,
+            studentGrade : element.grade
+        }
+        i++;
+      });
+      return data ;
+  } 
 module.exports = studentRouter;

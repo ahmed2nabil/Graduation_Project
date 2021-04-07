@@ -1,3 +1,4 @@
+const { Int32 } = require('bson');
 const mongoose=require('mongoose');
 const Schema = mongoose.Schema;
 const tgrade=new Schema({
@@ -24,7 +25,9 @@ const courseSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
-    totalGrade:[tgrade]
+    totalGrade: {
+        type:Number, required:true
+    }
 });
 var courses= mongoose.model('courses',courseSchema);
 module.exports=courses;

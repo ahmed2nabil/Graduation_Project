@@ -27,7 +27,6 @@ opts.secretOrKey = config.SECRET_KEY;
 
 exports.jwtPassport = passport.use(new JwtStrategy(opts,
     (jwt_payload, done) => {
-        console.log("JWT payload: ", jwt_payload);
         Student.findOne({_id: jwt_payload._id}, (err, user) => {
             if (err) {
                 return done(err, false);
