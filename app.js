@@ -48,6 +48,7 @@ app.use('/users',userRouter);
 app.use('/student',studentRouter);
 
 //Handle production 
+console.log(process.env.NODE_ENV);
 if(process.env.NODE_ENV === "production"){
   //for static folder
   app.use(express.static(__dirname + '/public/'));
