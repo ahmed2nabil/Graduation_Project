@@ -1,13 +1,12 @@
 const express   = require('express');
 const mongoose  = require('mongoose');
 var passport = require('passport');
-const bodyParser = require('body-parser');
 var Students = require('../models/student');
 var Courses = require('../models/course');
 
 var authenticate = require('../authenticate');
 const studentRouter = express.Router();
-studentRouter.use(bodyParser.json());
+studentRouter.use(express.json());
 
 studentRouter.get('/',(req,res)=> {
     res.send('This is student module');

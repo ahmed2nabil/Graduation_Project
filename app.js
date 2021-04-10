@@ -1,9 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
-var session = require('express-session');
-var fileStore = require('session-file-store')(session);
-const bodyParser = require('body-parser');
 const config = require('./config');
 const app = express();
 
@@ -29,26 +26,12 @@ console.log('Connected correctly to database');
   console.log(err);
 });
 
-
-const url = config.mongoUrl;
-app.use(session({
-  name : 'session-id',
-  secret : 'hello-world!!',
-  saveUninitialized : false,
-  resave: false,
-  store: new fileStore()
-}));
-
 app.use(passport.initialize());
-app.use(passport.session());
-
-
 app.use('/', indexRouter);
 app.use('/users',userRouter);
 app.use('/student',studentRouter);
 
 //Handle production 
-console.log(process.env.NODE_ENV);
 if(process.env.NODE_ENV === "production"){
   //for static folder
   app.use(express.static(__dirname + '/public/'));
