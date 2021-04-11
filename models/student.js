@@ -53,7 +53,6 @@ const studentSchema=new Schema({
     courseGrade:[courseGrade],
     totalGrade:[totalGrade]
 });
-
 studentSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
 var students=mongoose.model('students',studentSchema);
 module.exports=students;

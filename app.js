@@ -4,6 +4,7 @@ const passport = require('passport');
 const config = require('./config');
 const app = express();
 
+// app.use(express.json());
 const port = process.env.PORT || 3000;
 var authenticate = require('./authenticate');
 //Routes 

@@ -11,12 +11,13 @@ studentRouter.use(express.json());
 studentRouter.get('/',(req,res)=> {
     res.send('This is student module');
 })
-studentRouter.post('/login',passport.authenticate('local'), (req,res) => {
-    var token = authenticate.getToken({_id: req.user._id});
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json({success: true,userId :req.user._id, token: token, status: 'You are successfully logged in!'});
-  });
+studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
+        var token = authenticate.getToken({_id:req.user._id});
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: true,userId :req.user._id, token: token, msg: 'You are successfully logged in!'});
+ 
+});
 
 studentRouter.route('/:studentId')
 .get(authenticate.verifyStudent,(req,res,next) => {
@@ -75,4 +76,5 @@ function auth(req,res,next){
       });
       return data ;
   } 
+
 module.exports = studentRouter;

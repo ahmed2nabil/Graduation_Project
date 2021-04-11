@@ -40,4 +40,19 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
         });
     }));
 
+   exports.isLocalAuthenticated = function(req, res, next) {
+        passport.authenticate('local', function(err, user, info) {
+            if (err) { return next(err); } //error exception
+            // user will be set to false, if not authenticated
+            if (!user) {
+                res.status(401).json(info); //info contains the error message
+            } 
+            else {
+                req.logIn(user, function() {
+                    // do whatever here on successful login
+                    next();
+                })
+            }   
+        })(req, res, next);
+    }
 exports.verifyStudent = passport.authenticate('jwt', {session: false});
