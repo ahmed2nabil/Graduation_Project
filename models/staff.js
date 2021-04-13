@@ -1,5 +1,7 @@
 const mongoose=require('mongoose');
 const Schema = mongoose.Schema;
+
+const passportLocalMongoose = require('passport-local-mongoose');
 const staffSchema=new Schema({
     id:
     {
@@ -8,11 +10,6 @@ const staffSchema=new Schema({
     name:
     {
         type: String,
-        required:true
-    },
-    userName:
-    {
-        type:String,
         required:true
     },
     email:
@@ -25,16 +22,13 @@ const staffSchema=new Schema({
         type:String,
         required:true
     },
-    password:
-    {
-        type:String,
-        required:true
-    },
     deptID:
     {
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
 });
+staffSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
+
 var staff= mongoose.model('teachingStaff',staffSchema);
 module.exports=staff;

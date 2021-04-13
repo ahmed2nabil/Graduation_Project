@@ -7,10 +7,12 @@ const app = express();
 // app.use(express.json());
 const port = process.env.PORT || 3000;
 var authenticate = require('./authenticate');
+var authenticate_staff = require('./authenticate_staff');
 //Routes 
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/usersRouter');
 var studentRouter = require("./routes/studentRouter");
+var staffRouter = require("./routes/staffRouter");
 
 // const Students = require('./models/student'); 
 //GkQST3kALV93p35V //
@@ -28,10 +30,10 @@ console.log('Connected correctly to database');
 });
 
 app.use(passport.initialize());
-app.use('/', indexRouter);
-app.use('/users',userRouter);
-app.use('/student',studentRouter);
-
+app.use('/api/', indexRouter);
+app.use('/api/users',userRouter);
+app.use('/api/student',studentRouter);
+app.use('/api/staff',staffRouter);
 //Handle production 
 if(process.env.NODE_ENV === "production"){
   //for static folder

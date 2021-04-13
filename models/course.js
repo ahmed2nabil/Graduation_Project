@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const tgrade=new Schema({
     classID:
     {type:mongoose.Schema.Types.ObjectId,
-    ref:'class'
+    ref:'classes'
     },
     grade:{type:Number,required:true}
 
