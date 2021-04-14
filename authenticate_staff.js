@@ -8,7 +8,7 @@ var Staff = require('./models/staff');
 
 var config = require('./config');
 
-exports.local = passport.use(new localStrategy(Staff.authenticate())); //function authenticate supported by passport local -mongooses
+exports.local = passport.use('staff-local',new localStrategy(Staff.authenticate())); //function authenticate supported by passport local -mongooses
 
 //support the session 
 passport.serializeUser(Staff.serializeUser());
@@ -41,7 +41,7 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
     }));
 
     exports.isLocalAuthenticated = function(req, res, next) {
-        passport.authenticate('local', function(err, user, info) {
+        passport.authenticate('staff-local', function(err, user, info) {
             if (err) { return next(err); } //error exception
             // user will be set to false, if not authenticated
             if (!user) {
