@@ -28,6 +28,7 @@ studentRouter.route('/:studentId')
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     const studentprofile = studentData(student) ;
+    studentprofile.totalGivenGrade = getTotalGivenGrade(studentprofile);
     res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
@@ -76,5 +77,11 @@ function auth(req,res,next){
       });
       return data ;
   } 
-
+function getTotalGivenGrade(student) {
+    let sum = 0
+    student.courses.forEach(element=> {
+   sum += element.courseTotalGrade;     
+    });
+    return sum * 0.025 ;
+}
 module.exports = studentRouter;
