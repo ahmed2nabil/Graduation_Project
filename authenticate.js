@@ -24,7 +24,7 @@ opts.secretOrKey = config.SECRET_KEY;
 
 
 
-exports.jwtPassport = passport.use(new JwtStrategy(opts,
+exports.jwtPassport = passport.use('student-jwt',new JwtStrategy(opts,
     (jwt_payload, done) => {
         Student.findOne({_id: jwt_payload._id}, (err, user) => {
             if (err) {
@@ -40,7 +40,7 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
     }));
 
    exports.isLocalAuthenticated = function(req, res, next) {
-        passport.authenticate('student-local', function(err, user, info) {
+        passport.authenticate('local', function(err, user, info) {
             if (err) { return next(err); } //error exception
             // user will be set to false, if not authenticated
             if (!user) {
@@ -54,4 +54,4 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
             }   
         })(req, res, next);
     }
-exports.verifyStudent = passport.authenticate('jwt', {session: false});
+exports.verifyStudent = passport.authenticate('student-jwt', {session: false});

@@ -25,7 +25,7 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = config.SECRET_KEY;
 
 
-exports.jwtPassport = passport.use(new JwtStrategy(opts,
+exports.jwtPassport = passport.use('staff-jwt',new JwtStrategy(opts,
     (jwt_payload, done) => {
         Staff.findOne({_id: jwt_payload._id}, (err, user) => {
             if (err) {
@@ -55,4 +55,4 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
             }   
         })(req, res, next);
     }
-exports.verifyStaff = passport.authenticate('jwt', {session: false});    
+exports.verifyStaff = passport.authenticate('staff-jwt', {session: false});    
