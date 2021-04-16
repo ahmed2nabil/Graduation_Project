@@ -12,7 +12,7 @@ studentRouter.use(express.json());
 studentRouter.get('/',cors.cors,(req,res)=> {
     res.send('This is student module');
 })
-studentRouter.post('/login',cors.corsWithOptions,authenticate.isLocalAuthenticated, (req,res) => {
+studentRouter.post('/login',cors.cors,authenticate.isLocalAuthenticated, (req,res) => {
         var token = authenticate.getToken({_id:req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
