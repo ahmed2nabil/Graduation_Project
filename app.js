@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const config = require('./config');
+const cors = require('cors');
 const app = express();
 
 // app.use(express.json());
@@ -30,6 +31,7 @@ console.log('Connected correctly to database');
 });
 
 app.use(passport.initialize());
+app.use(cors());
 app.use('/api/', indexRouter);
 app.use('/api/users',userRouter);
 app.use('/api/student',studentRouter);
