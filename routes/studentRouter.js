@@ -3,15 +3,16 @@ const mongoose  = require('mongoose');
 var passport = require('passport');
 var Students = require('../models/student');
 var Courses = require('../models/course');
-
+const cors = require('./cors');
 var authenticate = require('../authenticate');
+const { response } = require('express');
 const studentRouter = express.Router();
 studentRouter.use(express.json());
 
-studentRouter.get('/',(req,res)=> {
+studentRouter.get('/',cors.cors,(req,res)=> {
     res.send('This is student module');
 })
-studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
+studentRouter.post('/login',cors.corsWithOptions,authenticate.isLocalAuthenticated, (req,res) => {
         var token = authenticate.getToken({_id:req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -20,7 +21,7 @@ studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
 });
 
 studentRouter.route('/:studentId')
-.get(authenticate.verifyStudent,(req,res,next) => {
+.get(cors.cors,authenticate.verifyStudent,(req,res,next) => {
     if(req.user._id == req.params.studentId) {
    Students.findById(req.params.studentId)
    .populate('courseGrade.courseID')
