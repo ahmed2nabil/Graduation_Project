@@ -6,19 +6,47 @@ const staff=new Schema({
         {type:mongoose.Schema.Types.ObjectId,
         ref:'teachingStaff'}
 });
-const course=new Schema({
-    courseID:
-        {type:mongoose.Schema.Types.ObjectId,
-        ref:'courses'}
+const student=new Schema({
+    studentID:
+        {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'students'},
+    state: {
+        type : String,
+        required :true
+    },
+    attemp: {
+        type: Number ,
+        required : true
+    },
+    grade: {
+        type: Number ,
+        required : true
+    },
+    finalExam: {
+        type: Number ,
+        required : true
+    }
 })
 const classSchema=new Schema({
-    id:
+    courseCode:
     {type:String, 
     required:true
     },
-    name:{type:String, required:true},
-    staffID:[staff],
-    courseID :[course]   
+    staffIDs:[staff],
+    teachingassistantID :{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'teachingAssistants'
+    } ,
+    courseID :{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'courses'
+    } ,
+    students :[student],
+    year : {
+        type : Number ,
+        required : true
+    }
 });
 var classes= mongoose.model('classes',classSchema);
 module.exports=classes;

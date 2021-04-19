@@ -1,19 +1,13 @@
 const mongoose=require('mongoose');
 const Schema = mongoose.Schema;
-
+//middleware support different methods useful for passport auth
 const passportLocalMongoose = require('passport-local-mongoose');
 
-const classIDs=new Schema({
-    classID:
-    {
-    type:mongoose.Schema.Types.ObjectId, 
-    ref:'classes'
-    }
-});
-const staffSchema=new Schema({
+const teachingAssistantSchema=new Schema({
     id:
     {
-        type:String, required:true
+        type:String,
+        required:true
     },
     name:
     {
@@ -35,9 +29,9 @@ const staffSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
-    classes:[classIDs]
+    classIDs:[classIDs]
 });
-staffSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
 
-var staff= mongoose.model('teachingStaff',staffSchema);
-module.exports=staff;
+teachingAssistantSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
+var teachingAssistants=mongoose.model('teachingAssistants',teachingAssistantSchema);
+module.exports=teachingAssistants;

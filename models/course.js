@@ -25,6 +25,9 @@ const courseSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
+    Grade : {
+        type:Number, required:true 
+    },
     totalGrade: {
         type:Number, required:true
     }

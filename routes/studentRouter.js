@@ -2,6 +2,7 @@ const express   = require('express');
 const mongoose  = require('mongoose');
 var passport = require('passport');
 var Students = require('../models/student');
+var Classes = require('../models/class');
 var Courses = require('../models/course');
 var authenticate = require('../authenticate');
 const { response } = require('express');
@@ -23,12 +24,11 @@ studentRouter.route('/:studentId')
 .get(authenticate.verifyStudent,(req,res,next) => {
     if(req.user._id == req.params.studentId) {
    Students.findById(req.params.studentId)
-   .populate('courseGrade.courseID')
+   .populate('classIDs.classID')
    .then((student) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    const studentprofile = studentData(student) ;
-    studentprofile.totalGivenGrade = getTotalGivenGrade(studentprofile);
+    const studentprofile = studentData(student,req.params.studentId);
     res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
@@ -61,27 +61,48 @@ function auth(req,res,next){
     }
   }
 
-  function studentData(student) {
+  function studentData(student,stuID) {
       let data = {
           name: student.name,
           username: student.username,
+          email : student.email ,
+          phone : student.phone,
+          ID : student.id,
           courses :[]
       };
-      let i =0;
-      student.courseGrade.forEach(element => {
-        data.courses[i] = {courseName:element.courseID.name,
-            courseTotalGrade : element.courseID.totalGrade,
-            studentGrade : element.grade
-        }
-        i++;
-      });
-      return data ;
+      student.classIDs.forEach(element => {
+         Courses.findById(element.classID.courseID)
+         .then((course) => {     
+            console.log(course);
+            }); 
+    }); 
+    return data ;
   } 
-function getTotalGivenGrade(student) {
-    let sum = 0
-    student.courses.forEach(element=> {
-   sum += element.courseTotalGrade;     
-    });
-    return sum * 0.025 ;
+function coursesAfter(courses) {
+    let sum = 0;
+    let failed_courses= [];
+    let totalGivenGrade;
+    let obj = {};
+    //for push failed courses into array && calculate Given Grade
+courses.forEach(element=> {  sum += element.courseTotalGrade;  
+if (element.percentage <= 50 && element.percentage >= 35) { failed_courses.push(element);
+ }});
+GivenGrade = sum * 0.025;
+ //calculate the degrees needed 
+failed_courses.forEach(element => {
+    element.degreesNeeded = (element.courseTotalGrade/2) - element.studentGrade; 
+});
+//add the degrees needed if exixsts
+failed_courses.forEach(element => {
+    if(GivenGrade >= element.degreesNeeded) {
+    element.studentGrade += element.degreesNeeded;
+    element.percentage = (element.studentGrade/element.courseTotalGrade) * 100;
+    GivenGrade -= element.degreesNeeded;    
+}
+})
+obj.failed_courses = failed_courses;
+obj.totalGivenGrades = sum * 0.025;
+obj.restGrades = GivenGrade;
+    return obj  ;
 }
 module.exports = studentRouter;

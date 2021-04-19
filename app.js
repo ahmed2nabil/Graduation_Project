@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const config = require('./config');
-const cors = require('cors');
+const cors = require('cors'); 
 const app = express();
 
 // app.use(express.json());
