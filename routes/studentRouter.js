@@ -35,7 +35,7 @@ studentRouter.route('/:studentId')
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     const studentprofile = studentData(student,req.params.studentId);
-    res.json(student);
+    res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
    else {
@@ -76,42 +76,23 @@ function auth(req,res,next){
           ID : student.id,
           courses :[]
       };
-      let i = 0;
+
       student.classIDs.forEach(element => {
-          data.courses.push(element.classID.courseID);
-      i++;
-    }); 
-    Courses.find().where('_id').in(data.courses).exec((err, records) => {
-        console.log(records);
-    });
-    console.log(data);
+          let course = {
+              name : element.classID.courseID.name,
+              perfGrade : element.classID.courseID.perfGrade,
+              finalGrade : element.classID.courseID.finalGrade
+          }; 
+          element.classID.students.forEach(element => {
+              if(element.studentID == stuID) {
+                  console.log(element);
+                  course.studentPerfGrade = element.grade;
+                  course.studentFinalGrade = element.finalExam;
+                }
+          });
+          data.courses.push(course);
+    })
 return data;
   } 
-function coursesAfter(courses) {
-    let sum = 0;
-    let failed_courses= [];
-    let totalGivenGrade;
-    let obj = {};
-    //for push failed courses into array && calculate Given Grade
-courses.forEach(element=> {  sum += element.courseTotalGrade;  
-if (element.percentage <= 50 && element.percentage >= 35) { failed_courses.push(element);
- }});
-GivenGrade = sum * 0.025;
- //calculate the degrees needed 
-failed_courses.forEach(element => {
-    element.degreesNeeded = (element.courseTotalGrade/2) - element.studentGrade; 
-});
-//add the degrees needed if exixsts
-failed_courses.forEach(element => {
-    if(GivenGrade >= element.degreesNeeded) {
-    element.studentGrade += element.degreesNeeded;
-    element.percentage = (element.studentGrade/element.courseTotalGrade) * 100;
-    GivenGrade -= element.degreesNeeded;    
-}
-})
-obj.failed_courses = failed_courses;
-obj.totalGivenGrades = sum * 0.025;
-obj.restGrades = GivenGrade;
-    return obj  ;
-}
+
 module.exports = studentRouter;
