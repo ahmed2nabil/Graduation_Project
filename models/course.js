@@ -25,10 +25,10 @@ const courseSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
-    Grade : {
+    perfGrade : {
         type:Number, required:true 
     },
-    totalGrade: {
+    finalGrade: {
         type:Number, required:true
     }
 });

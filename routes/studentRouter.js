@@ -24,12 +24,18 @@ studentRouter.route('/:studentId')
 .get(authenticate.verifyStudent,(req,res,next) => {
     if(req.user._id == req.params.studentId) {
    Students.findById(req.params.studentId)
-   .populate('classIDs.classID')
+   .populate({
+    path : 'classIDs.classID',
+    populate : {
+      path : 'courseID'
+    }
+  })
+//    .populate('classIDs.classID')
    .then((student) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     const studentprofile = studentData(student,req.params.studentId);
-    res.json(studentprofile);
+    res.json(student);
    },(err) => next(err))
    .catch((err) => next(err)); }
    else {
@@ -61,7 +67,7 @@ function auth(req,res,next){
     }
   }
 
-  function studentData(student,stuID) {
+  function  studentData(student,stuID) {
       let data = {
           name: student.name,
           username: student.username,
@@ -70,13 +76,16 @@ function auth(req,res,next){
           ID : student.id,
           courses :[]
       };
+      let i = 0;
       student.classIDs.forEach(element => {
-         Courses.findById(element.classID.courseID)
-         .then((course) => {     
-            console.log(course);
-            }); 
+          data.courses.push(element.classID.courseID);
+      i++;
     }); 
-    return data ;
+    Courses.find().where('_id').in(data.courses).exec((err, records) => {
+        console.log(records);
+    });
+    console.log(data);
+return data;
   } 
 function coursesAfter(courses) {
     let sum = 0;
