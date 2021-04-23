@@ -18,9 +18,9 @@ const totalGrade=new Schema({
     tgrade:{type:Number, required:true},
 });
 const studentSchema=new Schema({
-    id:
+    nid:
     {
-        type:String,
+        type:Number,
         required:true
     },
     name:

@@ -11,6 +11,10 @@ const student=new Schema({
         {
         type:mongoose.Schema.Types.ObjectId,
         ref:'students'},
+    nid : {
+        type : Number,
+        required : true
+    },
     state: {
         type : String,
         required :true
