@@ -32,6 +32,31 @@ const student=new Schema({
         required : true
     }
 })
+
+//graduates schema
+const graduate=new Schema({
+    graduateID:
+        {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'graduates'},
+    state: {
+        type : String,
+        required :true
+    },
+    attemp: {
+        type: Number ,
+        required : true
+    },
+    grade: {
+        type: Number ,
+        required : true
+    },
+    finalExam: {
+        type: Number ,
+        required : true
+    }
+})
+
 const classSchema=new Schema({
     courseCode:
     {type:String, 
@@ -47,6 +72,8 @@ const classSchema=new Schema({
         ref:'courses'
     } ,
     students :[student],
+    graduates:[graduate],
+
     year : {
         type : Number ,
         required : true
