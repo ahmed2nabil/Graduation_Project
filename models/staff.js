@@ -13,7 +13,8 @@ const classIDs=new Schema({
 const staffSchema=new Schema({
     id:
     {
-        type:String, required:true
+        type:String, 
+        required:true
     },
     name:
     {

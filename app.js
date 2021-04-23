@@ -13,7 +13,10 @@ var authenticate_staff = require('./authenticate_staff');
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/usersRouter');
 var studentRouter = require("./routes/studentRouter");
-var staffRouter = require("./routes/staffRouter");
+var staffRouter = require("./routes/staffRouter"); // removed this from app.use() belwo to stop autentication just for now 
+var staff_route = require("./routes/staff_route")
+var class_route = require("./routes/class_route")
+
 
 // const Students = require('./models/student'); 
 //GkQST3kALV93p35V //
@@ -35,7 +38,8 @@ app.use(cors());
 app.use('/api/', indexRouter);
 app.use('/api/users',userRouter);
 app.use('/api/student',studentRouter);
-app.use('/api/staff',staffRouter);
+app.use('/api/staff',staff_route);
+app.use('/api/class',class_route);
 //Handle production 
 if(process.env.NODE_ENV === "production"){
   //for static folder
@@ -49,3 +53,5 @@ if(process.env.NODE_ENV === "production"){
 app.listen(port,function(req,res){
     console.log('Server is connected successfully');
 });
+
+
