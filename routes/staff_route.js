@@ -19,6 +19,50 @@ router.get('/:id/class/:class_id',getclass,(req, res)=>{
     res.send("You don't have control of this Class" )
   }
 })
+// Creating a New class and Updating Class array inseide staff data
+router.post('/:id/class/',getstaff,async (req, res)=>{
+  const newclass = new classes ({
+     courseCode : req.body.courseCode,
+     year  : req.body.year,
+     staffIDs: req.body.staffIDs ,
+     courseID:req.body.courseID,
+     students:req.body.students,
+     
+
+  })
+  try{
+      const newclass_created = await newclass.save()
+      newclassID= newclass_created._id
+
+      res.status(201).json(newclass_created)
+
+
+  }
+  catch(err)
+  {
+    res.status(400).json({message:err.message})
+  }
+  
+
+    // adding the new class id to the staff classes array
+      classesarray=res.specific_staff.classes
+      newcourseobj ={classID:newclassID}
+      classesarray.push(newcourseobj)
+
+      res.specific_staff.classes=classesarray
+    try{
+
+        await res.specific_staff.save()
+        
+
+    }
+
+    catch(err)
+    {
+        console.log("this error in adding the class to array of classes " + err)
+    }
+    
+})
 
 //Updating Student Grades
 router.patch('/:id/class/:class_id',getclass ,async (req, res)=>{
@@ -47,9 +91,39 @@ router.patch('/:id/class/:class_id',getclass ,async (req, res)=>{
   else{
     res.send("You don't have control of this Class" )
   }
-  
-  
-  
+})
+
+// Delet Class : it just remove class id form staff classes array but not delet it in database 
+router.delete('/:id/class/:class_id',getstaff ,async (req, res)=>{
+      classesarray = res.specific_staff.classes
+
+      let classindex = -1
+      for (let i =0 ; i <classesarray.length;i++)
+      {
+        if (classesarray[i].classID==req.params.class_id)
+        {
+          classindex=i
+          break
+        }
+      }
+      classesarray.splice(classindex,1)
+
+      res.specific_staff.classes=classesarray
+
+      try{
+
+        await res.specific_staff.save()
+        res.json({message: "Class Removed "})
+
+    }
+
+    catch(err)
+    {
+        console.log("this error in deleting the class to array of classes " + err)
+    }
+
+    
+
 })
 
 //________________________________ Class Midelware__________________________
@@ -108,8 +182,8 @@ router.post('/',async (req, res)=>{
        email:req.body.email,
        phone:req.body.phone,
        password:req.body.password,
-       deptID:req.body.deptID
-
+       deptID:req.body.deptID,
+       classes:req.body.classes
     })
     try{
         const newstaff_created = await newstaff.save()
@@ -154,7 +228,10 @@ router.patch('/:id',getstaff ,async (req, res)=>{
     {
       res.specific_staff.deptID=req.body.deptID
     }
-  
+    if (req.body.classes!= null)
+    {
+      res.specific_staff.classes=req.body.classes
+    }
     try{
 
         const updatedstaff = await res.specific_staff.save()
