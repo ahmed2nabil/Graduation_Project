@@ -3,14 +3,13 @@ const Schema = mongoose.Schema;
 //middleware support different methods useful for passport auth
 const passportLocalMongoose = require('passport-local-mongoose');
 
-const courseGrade=new Schema({
-    courseID:
-    {type:mongoose.Schema.Types.ObjectId, 
-    ref:'courses'
-    },
-    grade:{type:Number, required:true},
-    year:{type:Number, required:true}
-}); 
+const classIDs=new Schema({
+    classID:
+    {
+    type:mongoose.Schema.Types.ObjectId, 
+    ref:'classes'
+    }
+});
 
 
 const graduateSchema=new Schema({
@@ -47,12 +46,7 @@ const graduateSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'departments'
     },
-    totalGrade:
-    {
-        type: Number,
-    },
-    courseGrade:[courseGrade],
-
+    classIDs:[classIDs]
 });
 
 graduateSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
