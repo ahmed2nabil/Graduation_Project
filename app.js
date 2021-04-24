@@ -13,7 +13,6 @@ var authenticate_staff = require('./authenticate_staff');
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/usersRouter');
 var studentRouter = require("./routes/studentRouter");
-var staffRouter = require("./routes/staffRouter"); // removed this from app.use() belwo to stop autentication just for now 
 var staff_route = require("./routes/staff_route")
 var class_route = require("./routes/class_route")
 var graduateRouter = require("./routes/graduateRouter");
