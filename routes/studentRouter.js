@@ -81,15 +81,17 @@ function auth(req,res,next){
           let course = {
               name : element.classID.courseID.name,
               perfGrade : element.classID.courseID.perfGrade,
-              finalGrade : element.classID.courseID.finalGrade
+              finalGrade : element.classID.courseID.finalGrade,
+              totalGrade : element.classID.courseID.finalGrade + element.classID.courseID.perfGrade
           }; 
           element.classID.students.forEach(element => {
               if(element.studentID == stuID) {
                   console.log(element);
                   course.studentPerfGrade = element.grade;
-                  course.studentFinalGrade = element.finalExam;
+                  course.studentTotalGrade = element.finalExam + element.grade;
                 }
           });
+          course.totalpercentage = (course.studentTotalGrade/course.totalGrade)*100;
           data.courses.push(course);
     })
 return data;

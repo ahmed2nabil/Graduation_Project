@@ -4,10 +4,18 @@ const staff= require("../models/staff.js");
 const classes= require("../models/class.js");
 module.exports = router
 
+var authenticate_staff = require('../authenticate_staff');
+//_________________________________LOGIN_________________________________________________
+router.post('/login',authenticate_staff.isLocalAuthenticated, (req,res) => {
+  var token = authenticate_staff.getToken({_id:req.user._id});
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.json({success: true,userId :req.user._id, token: token, msg: 'You are successfully logged in!'});
+});
 //__________________________Dealing With a Class_________________________________________
 
 // Getting class Info
-router.get('/:id/class/:class_id',getclass,(req, res)=>{
+router.get('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass,(req, res)=>{
   staffid= res.specific_class.staffIDs[0].staffID.toString();
   reqstaffid=req.params.id.toString();
   if (reqstaffid===staffid)
@@ -20,7 +28,7 @@ router.get('/:id/class/:class_id',getclass,(req, res)=>{
   }
 })
 // Creating a New class and Updating Class array inseide staff data
-router.post('/:id/class/',getstaff,async (req, res)=>{
+router.post('/:id/class/',authenticate_staff.verifyStaff,getstaff,async (req, res)=>{
   const newclass = new classes ({
      courseCode : req.body.courseCode,
      year  : req.body.year,
@@ -65,7 +73,7 @@ router.post('/:id/class/',getstaff,async (req, res)=>{
 })
 
 //Updating Student Grades
-router.patch('/:id/class/:class_id',getclass ,async (req, res)=>{
+router.patch('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass ,async (req, res)=>{
   staffid= res.specific_class.staffIDs[0].staffID
   if (req.params.id==staffid)
   {
@@ -94,7 +102,7 @@ router.patch('/:id/class/:class_id',getclass ,async (req, res)=>{
 })
 
 // Delet Class : it just remove class id form staff classes array but not delet it in database 
-router.delete('/:id/class/:class_id',getstaff ,async (req, res)=>{
+router.delete('/:id/class/:class_id',authenticate_staff.verifyStaff,getstaff ,async (req, res)=>{
       classesarray = res.specific_staff.classes
 
       let classindex = -1
@@ -151,7 +159,7 @@ async function getclass (req,res,next){
 //_________________________________Staff Route_________________________________________
 
 // Getting ALL Teaching Staff
-router.get('/', async(req, res)=>{
+router.get('/',authenticate_staff.verifyStaff, async(req, res)=>{
     
     try {
         const allstaff = await staff.find()
@@ -167,14 +175,14 @@ router.get('/', async(req, res)=>{
 
 
 // GETTING ONE Specific Teaching Staff
-router.get('/:id',getstaff,(req, res)=>{
+router.get('/:id',authenticate_staff.verifyStaff,getstaff,(req, res)=>{
     
     res.send(res.specific_staff)
 })
 
 
 // CREATING New Teaching Staff
-router.post('/',async (req, res)=>{
+router.post('/',authenticate_staff.verifyStaff,async (req, res)=>{
     const newstaff = new staff ({
        name : req.body.name,
        id : req.body.id,
@@ -198,7 +206,7 @@ router.post('/',async (req, res)=>{
     
 })
 // UPDATING Teaching Staff
-router.patch('/:id',getstaff ,async (req, res)=>{
+router.patch('/:id',authenticate_staff.verifyStaff,getstaff ,async (req, res)=>{
  
     if (req.body.name != null)
     {
@@ -246,7 +254,7 @@ router.patch('/:id',getstaff ,async (req, res)=>{
     
 })
 // DELETING Teaching Staff
-router.delete('/:id',getstaff, async (req, res)=>{
+router.delete('/:id',authenticate_staff.verifyStaff,getstaff, async (req, res)=>{
     try{
       await res.specific_staff.remove()
       res.json({message: "Deleted staff member "})
