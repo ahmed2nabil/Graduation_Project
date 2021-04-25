@@ -8,7 +8,7 @@ const classIDs=new Schema({
     type:mongoose.Schema.Types.ObjectId, 
     ref:'classes'
     }
-});
+}, {"_id" : false});
 
 const totalGrade=new Schema({
     classID:
@@ -16,7 +16,7 @@ const totalGrade=new Schema({
     ref:'classes'
     },
     tgrade:{type:Number, required:true},
-});
+}, {"_id" : false});
 const studentSchema=new Schema({
     nid:
     {

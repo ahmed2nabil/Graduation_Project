@@ -5,7 +5,7 @@ const staff=new Schema({
     staffID:
         {type:mongoose.Schema.Types.ObjectId,
         ref:'teachingStaff'}
-});
+},{"_id" : false});
 const student=new Schema({
     studentID:
         {
@@ -31,7 +31,7 @@ const student=new Schema({
         type: Number ,
         required : true
     }
-})
+}, {"_id" : false})
 
 //graduates schema
 const graduate=new Schema({
@@ -55,7 +55,7 @@ const graduate=new Schema({
         type: Number ,
         required : true
     }
-})
+}, {"_id" : false})
 
 const classSchema=new Schema({
     courseCode:

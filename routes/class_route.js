@@ -1,4 +1,5 @@
 const express = require('express');
+const { authenticate } = require('passport');
 const router = express.Router();
 const classes = require("../models/class.js");
 module.exports = router

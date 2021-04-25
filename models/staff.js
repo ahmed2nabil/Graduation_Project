@@ -9,7 +9,7 @@ const classIDs=new Schema({
     type:mongoose.Schema.Types.ObjectId, 
     ref:'classes'
     }
-});
+}, {"_id" : false});
 const staffSchema=new Schema({
     id:
     {
