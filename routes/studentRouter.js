@@ -73,7 +73,7 @@ function auth(req,res,next){
           username: student.username,
           email : student.email ,
           phone : student.phone,
-          ID : student.id,
+          nid : student.nid,
           courses :[]
       };
 
@@ -86,7 +86,6 @@ function auth(req,res,next){
           }; 
           element.classID.students.forEach(element => {
               if(element.studentID == stuID) {
-                  console.log(element);
                   course.studentPerfGrade = element.grade;
                   course.studentTotalGrade = element.finalExam + element.grade;
                 }
@@ -94,6 +93,11 @@ function auth(req,res,next){
           course.totalpercentage = (course.studentTotalGrade/course.totalGrade)*100;
           data.courses.push(course);
     })
+    let result = 0 ;
+    data.courses.forEach(element => {
+       result += element.studentTotalGrade 
+    });
+    data.totalCoursesGrade = result;
 return data;
   } 
 

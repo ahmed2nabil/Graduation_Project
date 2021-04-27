@@ -55,7 +55,7 @@ const graduate=new Schema({
         type: Number ,
         required : true
     }
-}, {"_id" : false})
+})
 
 const classSchema=new Schema({
     courseCode:
