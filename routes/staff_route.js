@@ -5,6 +5,9 @@ const classes= require("../models/class.js");
 module.exports = router
 
 var authenticate_staff = require('../authenticate_staff');
+const courses = require('../models/course.js');
+const students = require('../models/student.js');
+
 //_________________________________LOGIN_________________________________________________
 router.post('/login',authenticate_staff.isLocalAuthenticated, (req,res) => {
   var token = authenticate_staff.getToken({_id:req.user._id});
@@ -27,11 +30,13 @@ router.get('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass,(req, 
     res.send("You don't have control of this Class" )
   }
 })
+
+
 // Creating a New class and Updating Class array inseide staff data
 router.post('/:id/class/',authenticate_staff.verifyStaff,getstaff,async (req, res)=>{
   const newclass = new classes ({
      courseCode : req.body.courseCode,
-     year  : req.body.year,
+     year : req.body.year,
      staffIDs: req.body.staffIDs ,
      courseID:req.body.courseID,
      students:req.body.students,
@@ -77,25 +82,42 @@ router.patch('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass ,asy
   staffid= res.specific_class.staffIDs[0].staffID
   if (req.params.id==staffid)
   {
-    
-    if (req.body.students!= null)
-   {
-     res.specific_class.students=req.body.students
+    studentsdata = res.specific_class.students
+     
+     let nid;
+     let grade;
+    for (let i =0 ; i <req.body.students.length;i++)
+    {
+        nid = req.body.students[i].nid
+        grade = req.body.students[i].grade
+        
+        for  (let i = 0;i<studentsdata.length;i++)
+        {
+          if (nid===studentsdata[i].nid)
+          {
+            studentsdata[i].grade = grade
+            break
+          }
+        }
     }
- 
+    res.specific_class.students=studentsdata
+    try{
 
-   try
-   {
       const updatedclass = await res.specific_class.save()
       res.json(updatedclass)
 
-    }
+  }
 
-   catch(err)
-   {
+  catch(err)
+  {
       res.status(400).json({message:err.message})
-    } 
-  }  
+  }
+
+    
+  }
+  
+ 
+   
   else{
     res.send("You don't have control of this Class" )
   }
@@ -176,10 +198,41 @@ router.get('/',authenticate_staff.verifyStaff, async(req, res)=>{
 
 // GETTING ONE Specific Teaching Staff
 router.get('/:id',authenticate_staff.verifyStaff,getstaff,(req, res)=>{
-    
-    res.send(res.specific_staff)
+   
+    res.send(staffData(res.specific_staff))
 })
+// Modifi Staff Data
+function  staffData (staffdata) {
+  let data = {
+      name: staffdata.name,
+      username: staffdata.username,
+      email : staffdata.email ,
+      phone : staffdata.phone,
+      ID : staffdata.id,
+      deptID:staffdata.deptID,
+      classes :[]
 
+  };
+  
+  for (let i =0;i<staffdata.classes.length;i++)
+  {
+    let classinfo = {
+      classID:"",
+      courseName : "",
+      couseCode:""
+  
+    }
+     classinfo.classID = staffdata.classes[i].classID._id
+     classinfo.courseName = staffdata.classes[i].classID.courseID.name
+     classinfo.couseCode = staffdata.classes[i].classID.courseCode
+
+     data.classes.push(classinfo)
+     
+  } 
+
+
+return data;
+}
 
 // CREATING New Teaching Staff
 router.post('/',authenticate_staff.verifyStaff,async (req, res)=>{
@@ -274,6 +327,14 @@ async function getstaff (req,res,next){
     try{
 
       specific_staff = await staff.findById(req.params.id)
+       .populate({
+        path: "classes.classID",
+        populate : {
+          path : 'courseID',
+          
+        }
+        
+      })
       if (specific_staff==null)
       {
           res.status(404).json({message:" Staff member not found "})
