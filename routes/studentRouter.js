@@ -13,6 +13,7 @@ studentRouter.get('/',(req,res)=> {
     res.send('This is student module');
 })
 studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
+   
         var token = authenticate.getToken({_id:req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');

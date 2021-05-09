@@ -20,7 +20,7 @@ const totalGrade=new Schema({
 const studentSchema=new Schema({
     nid:
     {
-        type:Number,
+        type:String,
         required:true
     },
     name:

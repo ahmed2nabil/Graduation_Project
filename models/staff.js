@@ -36,6 +36,11 @@ const staffSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
+    controlID:
+    {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'control'
+    },
     classes:[classIDs]
 });
 staffSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose

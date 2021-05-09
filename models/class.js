@@ -12,7 +12,7 @@ const student=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'students'},
     nid : {
-        type : Number,
+        type : String,
         required : true
     },
     state: {
