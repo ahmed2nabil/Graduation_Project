@@ -11,7 +11,7 @@ const tgrade=new Schema({
 });
 
 const courseSchema=new Schema({
-    id:
+    code:
     {
         type:String, 
         required:true
@@ -30,6 +30,12 @@ const courseSchema=new Schema({
     },
     finalGrade: {
         type:Number, required:true
+    },
+    semester : {
+        type:Number, required:true 
+    },
+    academicYear: {
+        type:String, required:true
     }
 });
 var courses= mongoose.model('courses',courseSchema);

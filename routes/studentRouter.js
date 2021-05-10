@@ -57,17 +57,6 @@ studentRouter.route('/:studentId')
     res.statusCode = 403;
     res.end('Delete operation not supported on /student');
 })
-function auth(req,res,next){
-    if(!req.user){  //make sure of cookies exists
-        var err = new Error("you are not authenticated!");
-        err.status = 403;
-        return next(err);
-    }
-    else {
-        next();
-    }
-  }
-
   function  studentData(student,stuID) {
       let data = {
           name: student.name,

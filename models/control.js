@@ -10,7 +10,7 @@ const responsible=new Schema({
 const classes =new Schema({
     classID:
         {type:mongoose.Schema.Types.ObjectId,
-        ref:'class'}
+        ref:'classes'}
 });
 
 const rules=new Schema({

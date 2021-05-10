@@ -6,9 +6,12 @@ var localStrategy = require('passport-local').Strategy;
 var Staff = require('./models/staff');
 
 
+
 var config = require('./config');
 
-exports.local = passport.use('staff-local',new localStrategy(Staff.authenticate())); //function authenticate supported by passport local -mongooses
+exports.local = passport.use('control-local',new localStrategy(Staff.authenticate())); //function authenticate supported by passport local -mongooses
+
+
 
 //support the session 
 passport.serializeUser(Staff.serializeUser());
@@ -25,14 +28,19 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = config.SECRET_KEY;
 
 
-exports.jwtPassport = passport.use('staff-jwt',new JwtStrategy(opts,
+exports.jwtPassport = passport.use('control-jwt',new JwtStrategy(opts,
     (jwt_payload, done) => {
         Staff.findOne({_id: jwt_payload._id}, (err, user) => {
             if (err) {
                 return done(err, false);
             }
             else if (user) {
-                return done(null, user);
+                if(user.controlID) {
+                return done(null, user); 
+                }
+                else {
+                    return done(null,false);
+                }
             }
             else {
                 return done(null, false);
@@ -40,31 +48,15 @@ exports.jwtPassport = passport.use('staff-jwt',new JwtStrategy(opts,
         });
     }));
 
-    exports.isLocalAuthenticated = function(req, res, next) {
-        passport.authenticate('staff-local', function(err, user, info) {
-            if (err) { return next(err); } //error exception
-            // user will be set to false, if not authenticated
-            if (!user) {
-                res.status(401).json(info); //info contains the error message
-            } 
-            else {
-                req.logIn(user, function() {
-                    // do whatever here on successful login
-                    next();
-                })
-            }   
-        })(req, res, next);
-    }
-
+    
     exports.isControlResponsible = function(req,res,next) {
-        passport.authenticate('staff-local', function(err, user, info) {
+        passport.authenticate('control-local', function(err, user, info) {
             if (err) { return next(err); } //error exception
             // user will be set to false, if not authenticated
             if (!user) {
                 res.status(401).json(info); //info contains the error message
             } 
             else {
-                console.log(user);
                 if(user.controlID) {
                 req.logIn(user, function() {
                     // do whatever here on successful login
@@ -76,4 +68,4 @@ exports.jwtPassport = passport.use('staff-jwt',new JwtStrategy(opts,
             }   
         })(req, res, next);
     }
-exports.verifyStaff = passport.authenticate('staff-jwt', {session: false});    
+exports.verifyControl = passport.authenticate('control-jwt', {session: false});    
