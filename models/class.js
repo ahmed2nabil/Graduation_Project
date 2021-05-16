@@ -73,7 +73,6 @@ const classSchema=new Schema({
     } ,
     students :[student],
     graduates:[graduate],
-
     year : {
         type : Number ,
         required : true
