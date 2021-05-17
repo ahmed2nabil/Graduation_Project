@@ -42,7 +42,11 @@ const controlSchema= new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
-    rules:[rules]
+    rules:[rules],
+    year : {
+        type : Number ,
+        required : true
+    }
 });
 
 controlSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose

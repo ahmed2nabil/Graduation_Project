@@ -51,13 +51,14 @@ controlRouter.route('/:staffId/:controlId')
     .catch((err)=> next(err));
 })
 //------------------------------------ Control Rules -----------------------------//
-controlRouter.route('/:staffId/rules')
+controlRouter.route('/:staffId/:controlId/rules')
 .get(authenticate_control.verifyControl,(req,res,next) =>{
-    ControlRules.find({})
-    .then((rules) => {
+    Control.findById(req.params.controlId)
+    .populate('rules.ruleID')
+    .then((controlinfo) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(rules);
+        res.json(controlinfo.rules);
     },(err) => next(err)) 
     .catch((err)=> next(err));
 })
@@ -176,6 +177,7 @@ fast_csv.parseFile(req.file.path,{headers : true})
 function prettyControlProfile(controlinfo) {
   let finalData = {
     controlName : controlinfo.name,
+    year :  controlinfo.year,
     responsibleData : {
       name : controlinfo.responsibleIDs[0].responsibleID.name,
       username :controlinfo.responsibleIDs[0].responsibleID.username,
@@ -201,6 +203,8 @@ function prettyCoursesList(control){
     let temp ={
       classId : element.classID._id,
       courseId : element.classID.courseID._id,
+      semester : element.classID.courseID.semester,
+      year :  element.classID.year,
       name :element.classID.courseID.name,
       code :element.classID.courseID.code,
        perfGrade :element.classID.courseID.perfGrade,
