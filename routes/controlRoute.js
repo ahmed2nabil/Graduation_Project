@@ -95,6 +95,7 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
     .catch((err)=> next(err));
 })
 
+// ______________________________ last updates _____________________________________________
 .post(authenticate_control.verifyControl,async (req,res,next) =>{ 
   Class.findById(req.params.classId)
     .populate('courseID')
@@ -103,25 +104,41 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
       let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
       let list_of_students =classinfo.students;
       check_50_success(course_total_grade,list_of_students);
-
       await classinfo.save();
 
-
-
       return classinfo;
-      
-    
-
     })
-    .then((classinfo)=>{
+    .then(async(classinfo)=>{
       let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
       let list_of_students =classinfo.students;
-      modify_returning_students_grades (course_total_grade,list_of_students)
-      res.json(classinfo)
+      modify_returning_students_grades (course_total_grade,list_of_students);
+      await classinfo.save;
+
+      return classinfo;
    })
 
 })
+// .post(authenticate_control.verifyControl,(req,res,next) => {
+//   Class.findById(req.params.classId)
+//   .populate('students.studentID')
+//   .populate('courseID')
+//   .then((classinfo) => {
+//       res.statusCode = 200;
+//       res.setHeader('Content-Type', 'application/json');
+//       let  course = manipulateCourse(classinfo.courseID);
+//       let stu = prettyAllStudentsClass(classinfo);
+//       apply2PercentagToPass(stu,course);
+//       apply2PercentagToUpgrade(stu,course);
+//       saveGradesToStudents(classinfo.students,stu);
+//       classinfo.save();
+//       console.log(classinfo.students);
 
+//       res.json({students : stu, course : course});
+//   },(err) => next(err)) 
+//   .catch((err)=> next(err));
+// })
+
+//_________________________________ functions _______________________________
 function check_50_success (course_total_grade,list_of_students){
 
   let minimumGrade = course_total_grade *0.5;
@@ -336,6 +353,54 @@ function prettyAllStudentsClass(classinfo) {
   
   return arrayofstudents;
   }
-
+  function manipulateCourse(courseID) {
+    let course = {
+      name : courseID.name,
+      perfGrade :courseID.perfGrade, 
+      finalGrade : courseID.finalGrade,
+     totalGrade : courseID.perfGrade + courseID.finalGrade,
+      semester : courseID.semester,
+      academicYear : courseID.academicYear
+  
+    }
+   return course;
+  }
+  function apply2PercentagToPass(students,course){
+    students.forEach(element => {
+      let percentage = (element.totalGrade/course.totalGrade) * 100;
+      element.percentagebefore = percentage;
+      if (percentage < 50 && percentage >= 48) {
+        element.percentageAfter  = percentage + 2 ;
+        element.totalGradeAfter = element.totalGrade + (0.02 * course.totalGrade);
+      }
+      else  {
+        element.percentageAfter  = percentage ;
+        element.totalGradeAfter = element.totalGrade;
+      }
+    })
+  }
+  function apply2PercentagToUpgrade(students,course) {
+    students.forEach(element => {
+      let percentage = (element.totalGrade/course.totalGrade) * 100;
+      element.percentagebefore = percentage;
+      if ((percentage < 65 && percentage >= 63)|| (percentage < 75 && percentage >= 73) || (percentage < 85 && percentage >= 83)) {
+        element.totalGradeAfter = element.totalGrade + (0.02 * course.totalGrade);
+        element.percentageAfter  = percentage + 2;
+      }
+      else  {
+        element.percentageAfter  = percentage ;
+        element.totalGradeAfter = element.totalGrade;
+      }
+    })
+  }
+  function saveGradesToStudents(stuClass,stu) {
+   stuClass.forEach(element => {
+     stu.forEach(stu => {
+      if(element.nid == stu.nid) {
+        element.totalGrade = stu.totalGradeAfter;
+      }
+     })
+   })
+  }
 module.exports = controlRouter;
 
