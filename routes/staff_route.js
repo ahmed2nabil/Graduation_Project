@@ -8,14 +8,14 @@ var authenticate_staff = require('../authenticate_staff');
 const courses = require('../models/course.js');
 const students = require('../models/student.js');
 
-//_________________________________LOGIN_________________________________________________
+//_________________________________ LOGIN _________________________________________________
 router.post('/login',authenticate_staff.isLocalAuthenticated, (req,res) => {
   var token = authenticate_staff.getToken({_id:req.user._id});
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.json({success: true,userId :req.user._id, token: token, msg: 'You are successfully logged in!'});
 });
-//__________________________Dealing With a Class_________________________________________
+//__________________________ Dealing With a Class _________________________________________
 
 // Getting class Info
 router.get('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass,(req, res)=>{

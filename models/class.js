@@ -31,6 +31,12 @@ const student=new Schema({
         type: Number ,
         required : true
     }
+    ,
+    totalGrade: {
+        type: Number 
+        
+    }
+
 }, {"_id" : false})
 
 //graduates schema

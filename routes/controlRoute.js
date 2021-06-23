@@ -13,6 +13,7 @@ const ControlRules = require('../models/controlRules');
 const Class        = require('../models/class');
 const Students     = require('../models/student');
 const Departments  = require('../models/department');
+const Course       = require("../models/course");
 
 const authenticate_control = require('../authenticate_control');
 const control = require('../models/control');
@@ -80,7 +81,7 @@ controlRouter.route('/:staffId/:controlId/classes')
     },(err) => next(err)) 
     .catch((err)=> next(err));
 })
-//=====================================Control specfic class/course (list of students)====================//
+//=====================================Control specific class/course (list of students)====================//
 controlRouter.route('/:staffId/:controlId/classes/:classId')
 .get(authenticate_control.verifyControl,(req,res,next) =>{
     Class.findById(req.params.classId)
@@ -93,6 +94,108 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
     },(err) => next(err)) 
     .catch((err)=> next(err));
 })
+
+.post(authenticate_control.verifyControl,async (req,res,next) =>{ 
+  Class.findById(req.params.classId)
+    .populate('courseID')
+    .then(async(classinfo) => {
+
+      let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
+      let list_of_students =classinfo.students;
+      check_50_success(course_total_grade,list_of_students);
+
+      await classinfo.save();
+
+
+
+      return classinfo;
+      
+    
+
+    })
+    .then((classinfo)=>{
+      let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
+      let list_of_students =classinfo.students;
+      modify_returning_students_grades (course_total_grade,list_of_students)
+      res.json(classinfo)
+   })
+
+})
+
+function check_50_success (course_total_grade,list_of_students){
+
+  let minimumGrade = course_total_grade *0.5;
+  let number_of_passed_students = 0;
+  let number_of_failed_students = 0;
+  let list_of_failed_students =[];
+  let half_of_students = list_of_students.length * 0.5;
+
+  for (i=0;i<list_of_students.length;i++){
+
+    student_total_grade = list_of_students[i].totalGrade
+    if (student_total_grade >= minimumGrade){
+      number_of_passed_students=number_of_passed_students+1;
+    }else{
+      number_of_failed_students =number_of_failed_students+1;
+      list_of_failed_students.push(list_of_students[i]);
+    } 
+  }
+
+  let list_of_grades = []; //grades of failed students 
+  let update_grade = 0 ; // grade to add to all students to adjust percentage
+  if (number_of_passed_students < half_of_students)
+  {
+    let students_to_update = Math.ceil (half_of_students-number_of_passed_students);
+    for (i=0;i<list_of_failed_students.length;i++){
+      grade =list_of_failed_students[i].totalGrade; //
+      list_of_grades.push(grade);
+    }
+    list_of_grades.sort(function(a, b){return b - a});
+    update_grade = minimumGrade -list_of_grades[students_to_update-1]; 
+  }
+
+  for (i=0;i<list_of_students.length;i++){
+    before_grade = list_of_students[i].totalGrade;
+    after_grade  = list_of_students[i].totalGrade + update_grade 
+    if (before_grade < (0.5 * course_total_grade)){
+      if (after_grade > 0.5 * course_total_grade){
+        after_grade = 0.5 * course_total_grade;
+      }
+    }
+    else if(before_grade <(0.65 * course_total_grade)){
+      if (after_grade > 0.65 * course_total_grade){
+        after_grade = 0.65 * course_total_grade;
+      }
+    }
+    else if (before_grade <(0.75 * course_total_grade)){
+      if (after_grade > 0.75 * course_total_grade){
+        after_grade = 0.75 * course_total_grade;
+      }
+    }
+    else if (before_grade <(0.85 * course_total_grade)){
+      if (after_grade > 0.85 * course_total_grade){
+        after_grade = 0.85 * course_total_grade;
+      }
+    }else{
+      if (after_grade >  course_total_grade){
+        after_grade =  course_total_grade;
+      }
+    }
+    list_of_students[i].totalGrade = after_grade ;
+  }
+}
+
+function modify_returning_students_grades (course_total_grade,list_of_students ){
+  for (i=0;i<list_of_students.length;i++){
+    if (list_of_students[i].state === "O" || list_of_students[i].state === "F"  ){
+      if (list_of_students[i].totalGrade>= 0.65 * course_total_grade){
+        list_of_students[i].totalGrade = 0.65 * course_total_grade - 0.5 ;
+      }
+    }
+  }
+}
+
+
 //====================== get CSV list of student =====================//
 controlRouter.route('/:staffId/:controlId/classes/:classId/csv')
 .get(authenticate_control.verifyControl,(req,res,next) =>{
@@ -173,7 +276,7 @@ fast_csv.parseFile(req.file.path,{headers : true})
 
 })
 })
-//==============================helpers Function =======================================//
+//==============================helpers Function=======================================//
 function prettyControlProfile(controlinfo) {
   let finalData = {
     controlName : controlinfo.name,
@@ -235,3 +338,4 @@ function prettyAllStudentsClass(classinfo) {
   }
 
 module.exports = controlRouter;
+
