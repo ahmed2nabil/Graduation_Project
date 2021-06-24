@@ -76,8 +76,8 @@ controlRouter.route('/:staffId/:controlId/classes')
     .then((control) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        const coursesData = prettyCoursesList(control);
-        res.json(coursesData);
+        const CoursesData = prettyCoursesList(control);
+        res.json(CoursesData);
     },(err) => next(err)) 
     .catch((err)=> next(err));
 })
