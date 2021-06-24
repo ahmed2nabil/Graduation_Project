@@ -99,6 +99,8 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
 .post(authenticate_control.verifyControl,async (req,res,next) =>{ 
   Class.findById(req.params.classId)
     .populate('courseID')
+    .populate('students.studentID')
+    .populate('students.studentID')
     .then(async(classinfo) => {
 
       let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
@@ -112,31 +114,26 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
       let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
       let list_of_students =classinfo.students;
       modify_returning_students_grades (course_total_grade,list_of_students);
-      await classinfo.save;
+      await classinfo.save();
 
       return classinfo;
    })
+  .then((classinfo) => {
+
+      let  course = manipulateCourse(classinfo.courseID);
+      let stu = prettyAllStudentsClass(classinfo);
+      apply2PercentagToPass(stu,course);
+       apply2PercentagToUpgrade(stu,course);
+      saveGradesToStudents(classinfo.students,stu);
+      classinfo.save();
+      console.log(classinfo.students);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({students : stu, course : course});
+  },(err) => next(err)) 
+  .catch((err)=> next(err));
 
 })
-// .post(authenticate_control.verifyControl,(req,res,next) => {
-//   Class.findById(req.params.classId)
-//   .populate('students.studentID')
-//   .populate('courseID')
-//   .then((classinfo) => {
-//       res.statusCode = 200;
-//       res.setHeader('Content-Type', 'application/json');
-//       let  course = manipulateCourse(classinfo.courseID);
-//       let stu = prettyAllStudentsClass(classinfo);
-//       apply2PercentagToPass(stu,course);
-//       apply2PercentagToUpgrade(stu,course);
-//       saveGradesToStudents(classinfo.students,stu);
-//       classinfo.save();
-//       console.log(classinfo.students);
-
-//       res.json({students : stu, course : course});
-//   },(err) => next(err)) 
-//   .catch((err)=> next(err));
-// })
 
 //_________________________________ functions _______________________________
 function check_50_success (course_total_grade,list_of_students){
