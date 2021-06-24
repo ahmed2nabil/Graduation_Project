@@ -86,11 +86,19 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
 .get(authenticate_control.verifyControl,(req,res,next) =>{
     Class.findById(req.params.classId)
     .populate('students.studentID')
+    .populate('courseID')
     .then((classinfo) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         const stu = prettyAllStudentsClass(classinfo);
-        res.json(stu);
+        let courseInfo = {
+          name : classinfo.courseID.name,
+          code : classinfo.courseID.code,
+          perfGrade : classinfo.courseID.perfGrade,
+          finalGrade : classinfo.courseID.finalGrade,
+          semester : classinfo.courseID.semester
+        }
+        res.json({course :courseInfo,student :stu});
     },(err) => next(err)) 
     .catch((err)=> next(err));
 })
@@ -129,11 +137,16 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
       console.log(classinfo.students);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json({students : stu, course : course});
+      res.json({course : course,students : stu});
   },(err) => next(err)) 
   .catch((err)=> next(err));
 
 })
+// .post(authenticate_control.verifyControl,(req,res,next) => {
+//   Class.findById(req.params.classId)
+//   
+//   .populate('courseID')
+// })
 
 //_________________________________ functions _______________________________
 function check_50_success (course_total_grade,list_of_students){
@@ -343,7 +356,8 @@ function prettyAllStudentsClass(classinfo) {
           state : element.state,
           attemp : element.attemp,
           grade: element.grade,
-          finalExam : element.finalExam
+          finalExam : element.finalExam,
+          totalGrade : element.totalGrade
       }
       arrayofstudents.push(temp);
   });
