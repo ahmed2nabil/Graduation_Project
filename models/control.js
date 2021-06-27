@@ -12,7 +12,6 @@ const classes =new Schema({
         {type:mongoose.Schema.Types.ObjectId,
         ref:'classes'}
 });
-
 const rules=new Schema({
     ruleID:{
         type:mongoose.Schema.Types.ObjectId,
@@ -46,6 +45,10 @@ const controlSchema= new Schema({
     year : {
         type : Number ,
         required : true
+    },
+    academicYear : {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'year'
     }
 });
 
