@@ -1,21 +1,22 @@
 const express = require('express');
-const router = express.Router();
 const staff= require("../models/staff.js");
 const classes= require("../models/class.js");
-module.exports = router
-
+const departments= require("../models/department");
+var authenticate_admin = require('../authenticate_admin');
 var authenticate_staff = require('../authenticate_staff');
 const courses = require('../models/course.js');
 const students = require('../models/student.js');
+const router = express.Router();
+module.exports = router
 
-//_________________________________ LOGIN _________________________________________________
+//_________________________________LOGIN_________________________________________________
 router.post('/login',authenticate_staff.isLocalAuthenticated, (req,res) => {
   var token = authenticate_staff.getToken({_id:req.user._id});
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.json({success: true,userId :req.user._id, token: token, msg: 'You are successfully logged in!'});
 });
-//__________________________ Dealing With a Class _________________________________________
+//__________________________Dealing With a Class_________________________________________
 
 // Getting class Info
 router.get('/:id/class/:class_id',authenticate_staff.verifyStaff,getclass,(req, res)=>{
@@ -181,28 +182,44 @@ async function getclass (req,res,next){
 //_________________________________Staff Route_________________________________________
 
 // Getting ALL Teaching Staff
-router.get('/',authenticate_staff.verifyStaff, async(req, res)=>{
+router.get('/',authenticate_admin.verifyAdmin,(req, res,next)=>{   
     
-    try {
-        const allstaff = await staff.find()
-        res.json(allstaff)
-    }
-    catch (err){
-  
-        res.status(500).json({message:err.message})
-
-        }
+        departments.findById(req.body.deptId)
+       .populate('staff.staffId')
+        .then((dept)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        const staffDa =  getStaff(dept);
+        console.log(dept);
+        res.json(staffDa);
+        },(err)=>next(err))
+        .catch((err)=> next(err));
 })
 
-
+ function getStaff(dept){
+   let staffDa =
+  {
+    StaffOfDepartment:[]
+  }
+  let i=0; 
+dept.staff.forEach(element=>{
+  staffDa.StaffOfDepartment[i]=element.staffId.name
+  i++;
+  }
+  
+)
+return staffDa
+} 
 
 // GETTING ONE Specific Teaching Staff
-router.get('/:id',authenticate_staff.verifyStaff,getstaff,(req, res)=>{
-   
+ router.get('/staffprofile',authenticate_admin.verifyAdmin,getstaff,(req, res)=>{
+  
     res.send(staffData(res.specific_staff))
-})
+  
+}) 
 // Modifi Staff Data
 function  staffData (staffdata) {
+  
   let data = {
       name: staffdata.name,
       username: staffdata.username,
@@ -230,21 +247,20 @@ function  staffData (staffdata) {
      
   } 
 
-
+  
 return data;
 }
 
 // CREATING New Teaching Staff
-router.post('/',authenticate_staff.verifyStaff,async (req, res)=>{
+router.post('/',authenticate_admin.verifyAdmin,async (req, res)=>{
     const newstaff = new staff ({
        name : req.body.name,
-       id : req.body.id,
-       userName: req.body.username ,
+       nid : req.body.nid,
+       username: req.body.username ,
        email:req.body.email,
        phone:req.body.phone,
        password:req.body.password,
        deptID:req.body.deptID,
-       classes:req.body.classes
     })
     try{
         const newstaff_created = await newstaff.save()
@@ -259,7 +275,7 @@ router.post('/',authenticate_staff.verifyStaff,async (req, res)=>{
     
 })
 // UPDATING Teaching Staff
-router.patch('/:id',authenticate_staff.verifyStaff,getstaff ,async (req, res)=>{
+router.patch('/',authenticate_admin.verifyAdmin,getstaff ,async (req, res)=>{
  
     if (req.body.name != null)
     {
@@ -307,7 +323,7 @@ router.patch('/:id',authenticate_staff.verifyStaff,getstaff ,async (req, res)=>{
     
 })
 // DELETING Teaching Staff
-router.delete('/:id',authenticate_staff.verifyStaff,getstaff, async (req, res)=>{
+router.delete('/',authenticate_admin.verifyAdmin,getstaff, async (req, res)=>{
     try{
       await res.specific_staff.remove()
       res.json({message: "Deleted staff member "})
@@ -325,8 +341,9 @@ router.delete('/:id',authenticate_staff.verifyStaff,getstaff, async (req, res)=>
 async function getstaff (req,res,next){
     let specific_staff
     try{
-
-      specific_staff = await staff.findById(req.params.id)
+      if(req.body.deptId)
+      {
+      specific_staff = await staff.findById(req.body.staffId)
        .populate({
         path: "classes.classID",
         populate : {
@@ -335,6 +352,7 @@ async function getstaff (req,res,next){
         }
         
       })
+    }
       if (specific_staff==null)
       {
           res.status(404).json({message:" Staff member not found "})
