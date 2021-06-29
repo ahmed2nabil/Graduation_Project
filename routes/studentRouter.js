@@ -51,8 +51,32 @@ function getStudents(year,deptId){
     })}
 return allStudents;
 }
-
-//////// get a specific student //////////
+//////// get a specific student  //////////
+studentRouter.route('/:studentId')
+.get(authenticate.verifyStudent,(req,res,next) => {
+    if(req.user._id == req.params.studentId) {
+   Students.findById(req.params.studentId)
+   .populate({
+    path : 'classIDs.classID',
+    populate : {
+      path : 'courseID'
+    }
+  })
+//    .populate('classIDs.classID')
+   .then((student) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    const studentprofile = studentData(student,req.params.studentId);
+    res.json(studentprofile);
+   },(err) => next(err))
+   .catch((err) => next(err)); }
+   else {
+    var err = new Error("you don't have permission to do that");
+    err.status = 403;
+    return next(err);
+   }
+})
+//////// get a specific student by admin //////////
 studentRouter.route('/studentprofile')
 .get(authenticate_admin.verifyAdmin,(req,res,next) => {
    Years.findById(req.body.yearId)
@@ -115,8 +139,11 @@ studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
 })
 ///// update student data
 studentRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
+
 Students.findById(req.body.studentId)
+
 .then((student)=>{
+    console.log(student)
     if (req.body.name != null){
         student.name=req.body.name
     }
