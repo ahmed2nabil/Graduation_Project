@@ -1,19 +1,11 @@
 const mongoose=require('mongoose');
 const Schema = mongoose.Schema;
-const sections=new Schema({
-    id:
-    {
-        type:String,
-        
-    },
-    name:
-    {
-        type:String,
-        required:true
-    }
 
-});
-
+const staff=new Schema({
+    staffId:
+        {type:mongoose.Schema.Types.ObjectId,
+        ref:'teachingstaff'}
+}, {"_id" : false});
 
 const deptSchema=new Schema({
     id:
@@ -22,11 +14,7 @@ const deptSchema=new Schema({
         required:true
     },
     name:{type:String, required:true},
-    sections:[sections],
-    staff:[{
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'staff'
-    }]
+    staff:[staff]
 });
 var dept= mongoose.model('department',deptSchema);
 module.exports=dept;
