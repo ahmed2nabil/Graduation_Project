@@ -4,14 +4,16 @@ var passport = require('passport');
 var Students = require('../models/student');
 var Classes = require('../models/class');
 var Courses = require('../models/course');
+var Years = require('../models/year');
+
 var authenticate = require('../authenticate');
 const { response } = require('express');
+var authenticate_admin = require('../authenticate_admin');
+
 const studentRouter = express.Router();
 studentRouter.use(express.json());
 
-studentRouter.get('/',(req,res)=> {
-    res.send('This is student module');
-})
+///// LOGIN //////
 studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
    
         var token = authenticate.getToken({_id:req.user._id});
@@ -21,74 +23,137 @@ studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
  
 });
 
-studentRouter.route('/:studentId')
-.get(authenticate.verifyStudent,(req,res,next) => {
-    if(req.user._id == req.params.studentId) {
-   Students.findById(req.params.studentId)
-   .populate({
-    path : 'classIDs.classID',
-    populate : {
-      path : 'courseID'
-    }
-  })
-//    .populate('classIDs.classID')
-   .then((student) => {
+//////// get all students  ////////
+studentRouter.get('/',authenticate_admin.verifyAdmin,(req,res)=> {
+      Years.findById(req.body.yearId)
+      .populate('students.studentId')
+      .then((year)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        const allStudents = getStudents(year,req.body.deptId);
+        res.json(allStudents)
+      })
+    
+})
+function getStudents(year,deptId){
+    let allStudents=[]
+    if(year.deptId==deptId){
+    year.students.forEach(element=>{
+        let studentsData={
+            name:element.studentId.name,
+            nationalID:element.studentId.nid,
+            email:element.studentId.email,
+            username:element.studentId.username,
+            phone:element.studentId.phone
+
+        }; 
+        allStudents.push(studentsData)      
+    })}
+return allStudents;
+}
+
+//////// get a specific student //////////
+studentRouter.route('/studentprofile')
+.get(authenticate_admin.verifyAdmin,(req,res,next) => {
+   Years.findById(req.body.yearId)
+   .then((year) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    const studentprofile = studentData(student,req.params.studentId);
-    res.json(studentprofile);
-   },(err) => next(err))
-   .catch((err) => next(err)); }
-   else {
-    var err = new Error("you don't have permission to do that");
-    err.status = 403;
-    return next(err);
-   }
-})
-.post((req,res,cb) => {
-    res.statusCode = 403;
-    res.end('POST operation not supported on /student');
-})
-.put((req,res,cb) => {
-    res.statusCode = 403;
-    res.end('PUT operation not supported on /student');
-})
-.delete((req,res,cb) => {
-    res.statusCode = 403;
-    res.end('Delete operation not supported on /student');
-})
-  function  studentData(student,stuID) {
-      let data = {
-          name: student.name,
-          username: student.username,
-          email : student.email ,
-          phone : student.phone,
-          nid : student.nid,
-          courses :[]
-      };
+    if(year.deptId==req.body.deptId)
+    {
+   Students.findById(req.body.studentId)
+   .populate({
+    path: "classIDs.classID",
+    populate : {
+      path : 'courseID',
+      
+    }
+    
+  })  .then((student)=>
+   {
+       let studentProfile=
+    {
+        studentName:student.name,
+        userName:student.username,
+        email :student.email ,
+        phone : student.phone,
+        nationalID: student.nid, 
+        courses:[]
+    };
 
-      student.classIDs.forEach(element => {
-          let course = {
-              name : element.classID.courseID.name,
-              perfGrade : element.classID.courseID.perfGrade,
-              finalGrade : element.classID.courseID.finalGrade,
-              totalGrade : element.classID.courseID.finalGrade + element.classID.courseID.perfGrade
-          }; 
-          element.classID.students.forEach(element => {
-              if(element.studentID == stuID) {
-                  course.studentPerfGrade = element.grade;
-                  course.studentTotalGrade = element.finalExam + element.grade;
-                }
-          });
-          course.totalpercentage = (course.studentTotalGrade/course.totalGrade)*100;
-          data.courses.push(course);
+      student.classIDs.forEach(element=>{
+        let course = {
+            name : element.classID.courseID.name
+        }; 
+        studentProfile.courses.push(course)
+      })
+      res.json(studentProfile);
     })
-    let result = 0 ;
-    data.courses.forEach(element => {
-       result += element.studentTotalGrade 
-    });
-    data.totalCoursesGrade = result;
-return data;
-  } 
+    }
+   }
+   ,(err) => next(err))
+})
+/// create new student
+studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
+    const newStudent = new Students ({
+        name : req.body.name,
+        nid : req.body.nid,
+        userName: req.body.username ,
+        email:req.body.email,
+        phone:req.body.phone,
+        password:req.body.password,
+        deptID:req.body.deptID,
+     })
+     try{
+     Students.insertMany(newStudent);
+     res.status(201).json(newStudent)    }
+     catch(err){
+         res.status=400,
+         res.json({message:err.message})
+     }
+
+})
+///// update student data
+studentRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
+Students.findById(req.body.studentId)
+.then((student)=>{
+    if (req.body.name != null){
+        student.name=req.body.name
+    }
+
+    if (req.body.username != null){
+        student.username=req.body.username
+    }
+    if (req.body.nid != null){
+        student.nid=req.body.nid
+    }
+    if (req.body.email != null){
+        student.email=req.body.email
+    }
+    if (req.body.phone != null){
+        student.phone=req.body.phone
+    }
+    try{
+
+        student.save()
+        res.json(student)
+
+    }
+
+    catch(err)
+    {
+        res.status=400
+        res.json({message:err.message})
+    }})
+})
+///// delete a student //////
+studentRouter.delete('/',authenticate_admin.verifyAdmin,(req,res,next) => {
+   Students.findByIdAndRemove(req.body.studentId)
+   .then(res.json({message:'student is deleted successfully'})
+   ,(err)=>{next(err)})
+   })
+//////////////////////////////
+
+  
 
 module.exports = studentRouter;
