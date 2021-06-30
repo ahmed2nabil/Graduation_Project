@@ -66,7 +66,7 @@ studentRouter.route('/:studentId')
    .then((student) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    const studentprofile = studentData(student,req.params.studentId);
+    const studentprofile = studentData(student);
     res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
@@ -180,7 +180,32 @@ studentRouter.delete('/',authenticate_admin.verifyAdmin,(req,res,next) => {
    ,(err)=>{next(err)})
    })
 //////////////////////////////
-
+function studentData(student){
+    let studentProfile=
+            {
+               studentName: student.name,
+                userName: student.username,
+                email : student.email ,
+                phone :  student.phone,
+                nationalID:  student.nid, 
+                courses:[]
+            };
+            student.classIDs.forEach(element=>{
+                let course = {
+                    name : element.classID.courseID.name,
+                    CoursePerformanceGrade:element.classID.courseID.perfGrade,
+                    CourseFinalGrade:element.classID.courseID.finalGrade
+                    
+                }; 
+                element.classID.students.forEach(i=>{
+                    course.StudentPerformanceGrade=i.grade
+                    course.StudentFinalExamGrade=i.finalExam
+                    course.StudentTotalGrade=course.StudentPerformanceGrade+ course.StudentFinalExamGrade
+                })
+                studentProfile.courses.push(course)
+              })
+              return studentProfile
+}
   
 
 module.exports = studentRouter;
