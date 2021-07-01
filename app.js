@@ -17,6 +17,7 @@ var staff_route = require("./routes/staff_route")
 var class_route = require("./routes/class_route")
 var graduateRouter = require("./routes/graduateRouter");
 var controlRouter = require("./routes/controlRoute");
+var adminRouter = require("./routes/admin_route");
 
 
 
@@ -44,6 +45,7 @@ app.use('/api/staff',staff_route);
 app.use('/api/class',class_route);
 app.use('/api/graduates',graduateRouter);
 app.use('/api/control',controlRouter);
+app.use('/api/admin',adminRouter)
 //Handle production 
 if(process.env.NODE_ENV === "production"){
   //for static folder
