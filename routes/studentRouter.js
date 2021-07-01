@@ -6,7 +6,7 @@ var Classes = require('../models/class');
 var Courses = require('../models/course');
 var Years = require('../models/year');
 
-var authenticate = require('../authenticate');
+let authenticate = require('../authenticate');
 const { response } = require('express');
 var authenticate_admin = require('../authenticate_admin');
 
