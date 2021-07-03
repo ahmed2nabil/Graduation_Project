@@ -6,7 +6,7 @@ var Classes = require('../models/class');
 var Courses = require('../models/course');
 var Years = require('../models/year');
 
-let authenticate = require('../authenticate');
+var authenticate = require('../authenticate');
 const { response } = require('express');
 var authenticate_admin = require('../authenticate_admin');
 
@@ -51,9 +51,48 @@ function getStudents(year,deptId){
     })}
 return allStudents;
 }
+//////// get a specific student by admin //////////
+studentRouter.get('/studentprofile',authenticate_admin.verifyAdmin,(req,res,next) => {
+    Years.findById(req.body.yearId)
+    .then((year) => {
+     res.statusCode = 200;
+     res.setHeader('Content-Type', 'application/json');
+     if(year.deptId==req.body.deptId)
+     {
+    Students.findById(req.body.studentId)
+    .populate({
+     path: "classIDs.classID",
+     populate : {
+       path : 'courseID',
+       
+     }
+     
+   })  .then((student)=>
+    {
+        let studentProfile=
+     {
+         studentName:student.name,
+         userName:student.username,
+         email :student.email ,
+         phone : student.phone,
+         nationalID: student.nid, 
+         courses:[]
+     };
+ 
+       student.classIDs.forEach(element=>{
+         let course = {
+             name : element.classID.courseID.name
+         }; 
+         studentProfile.courses.push(course)
+       })
+       res.json(studentProfile);
+     })
+     }
+    }
+    ,(err) => next(err))
+ })
 //////// get a specific student  //////////
-studentRouter.route('/:studentId')
-.get(authenticate.verifyStudent,(req,res,next) => {
+ studentRouter.get('/:studentId',authenticate.verifyStudent ,(req,res,next) => {
     if(req.user._id == req.params.studentId) {
    Students.findById(req.params.studentId)
    .populate({
@@ -75,48 +114,8 @@ studentRouter.route('/:studentId')
     err.status = 403;
     return next(err);
    }
-})
-//////// get a specific student by admin //////////
-studentRouter.route('/studentprofile')
-.get(authenticate_admin.verifyAdmin,(req,res,next) => {
-   Years.findById(req.body.yearId)
-   .then((year) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    if(year.deptId==req.body.deptId)
-    {
-   Students.findById(req.body.studentId)
-   .populate({
-    path: "classIDs.classID",
-    populate : {
-      path : 'courseID',
-      
-    }
-    
-  })  .then((student)=>
-   {
-       let studentProfile=
-    {
-        studentName:student.name,
-        userName:student.username,
-        email :student.email ,
-        phone : student.phone,
-        nationalID: student.nid, 
-        courses:[]
-    };
+}) 
 
-      student.classIDs.forEach(element=>{
-        let course = {
-            name : element.classID.courseID.name
-        }; 
-        studentProfile.courses.push(course)
-      })
-      res.json(studentProfile);
-    })
-    }
-   }
-   ,(err) => next(err))
-})
 /// create new student
 studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
     const newStudent = new Students ({
