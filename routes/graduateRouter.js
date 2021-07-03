@@ -53,32 +53,6 @@ dept.graduates.forEach(element=>{
 })
 return GraduatesOfDepartment
 } 
-///// get  graduate profile ////////////
-graduateRouter.route('/:graduateId')
-.get(authenticate_grad.verifyGraduate,(req,res,next) => {
-    if(req.user._id == req.params.graduateId) {
-   Graduates.findById(req.params.graduateId)
-   .populate({
-    path : 'classIDs.classID',
-    populate : {
-      path : 'courseID'
-    }
-  })
-//    .populate('classIDs.classID')
-   .then((graduate) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    const graduateprofile = graduateData(graduate,req.params.graduateId);
-    res.json(graduateprofile);
-   },(err) => next(err))
-   .catch((err) => next(err)); }
-   else {
-    var err = new Error("you don't have permission to do that");
-    err.status = 403;
-    return next(err);
-   }
-})
-
 //////// get a specific graduate by admin //////////
 graduateRouter.route('/graduateprofile')
 .get(authenticate_admin.verifyAdmin,(req,res,next) => {
@@ -118,6 +92,32 @@ graduateRouter.route('/graduateprofile')
     })
 
 })
+///// get  graduate profile ////////////
+graduateRouter.route('/:graduateId')
+.get(authenticate_grad.verifyGraduate,(req,res,next) => {
+    if(req.user._id == req.params.graduateId) {
+   Graduates.findById(req.params.graduateId)
+   .populate({
+    path : 'classIDs.classID',
+    populate : {
+      path : 'courseID'
+    }
+  })
+   .then((graduate) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    const graduateprofile = graduateData(graduate,req.params.graduateId);
+    res.json(graduateprofile);
+   },(err) => next(err))
+   .catch((err) => next(err)); }
+   else {
+    var err = new Error("you don't have permission to do that");
+    err.status = 403;
+    return next(err);
+   }
+})
+
+
 /// create new graduate
 graduateRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
     const newGraduate = new Graduates ({
