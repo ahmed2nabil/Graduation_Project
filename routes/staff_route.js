@@ -217,9 +217,33 @@ return staffDa
     res.send(staffData(res.specific_staff))
   
 }) 
+
+// GETTING Teaching Staff profile
+router.get('/:staffId',authenticate_staff.verifyStaff,(req, res,next)=>{
+  if(req.user._id == req.params.staffId) {
+    staff.findById(req.params.staffId)
+    .populate({
+      path : 'classes.classID',
+      populate : {
+        path : 'courseID'
+      }
+    })
+    .then((sta)=> {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(staffData(sta));
+    })
+    .catch((err)=>next(err));
+  }
+  else {
+    var err = new Error("you don't have permission to do that");
+    err.status = 403;
+    return next(err);
+  }
+
+}) 
 // Modifi Staff Data
-function  staffData (staffdata) {
-  
+function  staffData(staffdata) {
   let data = {
       name: staffdata.name,
       username: staffdata.username,
