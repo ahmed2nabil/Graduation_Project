@@ -14,6 +14,7 @@ const Class        = require('../models/class');
 const Students     = require('../models/student');
 const Departments  = require('../models/department');
 const Course       = require("../models/course");
+const Year         = require ("../models/year");
 
 const authenticate_control = require('../authenticate_control');
 const control = require('../models/control');
@@ -142,11 +143,7 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
   .catch((err)=> next(err));
 
 })
-// .post(authenticate_control.verifyControl,(req,res,next) => {
-//   Class.findById(req.params.classId)
-//   
-//   .populate('courseID')
-// })
+
 
 //_________________________________ functions _______________________________
 function check_50_success (course_total_grade,list_of_students){
@@ -219,6 +216,116 @@ function modify_returning_students_grades (course_total_grade,list_of_students )
         list_of_students[i].totalGrade = 0.65 * course_total_grade - 0.5 ;
       }
     }
+  }
+}
+
+//_______________________upgrading rules _____________________________________________
+controlRouter.route('/:staffId/:controlId/upgrade/:yearId')
+.post(authenticate_control.verifyControl,(req,res,next) =>{
+    Year.findById(req.params.yearId)
+    .populate({
+      path : 'students.studentId',
+      populate : {
+        path : 'classIDs.classID',
+        populate : {
+          path : 'courseID'}
+      }
+    })
+    .then((yearInfo)=>{
+      
+      applyUpgradingRules (yearInfo.students);
+    
+      //yearInfo.save();
+      res.json(yearInfo);
+
+    })
+})
+async function applyUpgradingRules (list_of_students){
+
+  for (i=0;i<list_of_students.length ;i++){
+
+    let classes = list_of_students[i].studentId.classIDs;
+    let list_of_failed_classes=[];
+    let upgrade_grades = 0;  // grades available to upgrade student 
+    let total_grades =0;     // sum of all the maximum grades of students courses ( new / old )
+    let student_grade = 0;   // total grade of student in a course
+    let student_index_in_class = 0; 
+    
+    for(y=0;y<classes.length;y++){
+      
+      spc_class = classes[y].classID;
+      let course_grade = spc_class.courseID.perfGrade + spc_class.courseID.finalGrade;
+      total_grades = total_grades + course_grade;
+      for (x=0;x<spc_class.students.length;x++){
+        
+        if (spc_class.students[x].nid == list_of_students[i].studentId.nid){
+          student_grade = spc_class.students[x].totalGrade;
+          student_index_in_class = x;
+          break;
+        }
+      }
+
+      if(student_grade < (course_grade * 0.5) && student_grade > (course_grade * 0.35)){
+        let grades_to_success = (course_grade*0.5)-student_grade;
+        list_of_failed_classes.push({class:spc_class,class_index:y,index_in_class:student_index_in_class,grades_to_success:grades_to_success});
+      }
+
+    }
+    
+    upgrade_grades = total_grades * 0.025
+    list_of_failed_classes.sort((firstItem, secondItem) => firstItem.grades_to_success - secondItem.grades_to_success)
+   
+    if (list_of_failed_classes.length >0){
+      for(m=0;m<list_of_failed_classes.length;m++){
+        if (upgrade_grades > list_of_failed_classes[m].grades_to_success){ 
+          try{
+
+            let specific_class = await Class.findById(list_of_failed_classes[m].class._id);
+            specific_class.students[list_of_failed_classes[m].index_in_class].totalGrade =list_of_failed_classes[m].class.students [list_of_failed_classes[m].index_in_class].totalGrade+list_of_failed_classes[m].grades_to_success;
+            await specific_class.save();
+            upgrade_grades = upgrade_grades - list_of_failed_classes[m].grades_to_success;
+          }
+          catch (err){
+            console.log(err)
+          }
+        }
+      }
+    }else{
+
+      let index = list_of_students[i].studentId.totalGrade.length - 1;
+      let upgrade_grades2 = total_grades*0.02;  
+      let total_year_grade =list_of_students[i].studentId.totalGrade[index];
+
+      if (total_year_grade < total_grades *0.65){
+        let diff = total_grades*0.65 - total_year_grade;
+        if (upgrade_grades > diff){
+          total_year_grade = total_grades*0.65;
+        }
+      }
+      else if (total_year_grade < total_grades *0.75){
+        let diff = total_grades*0.75 - total_year_grade;
+        if (upgrade_grades > diff){
+          total_year_grade = total_grades*0.75;
+        }
+      }else{
+        let diff = total_grades*0.85 - total_year_grade;
+        if (upgrade_grades > diff){
+          total_year_grade = total_grades*0.85;
+        }
+      }
+      
+      try{
+
+        let specific_student = await Students.findById(list_of_students[i].studentId._id);
+        specific_student.totalGrade.pop();
+        specific_student.totalGrade.push(total_year_grade);
+        await specific_student.save();
+      }
+      catch (err){
+        console.log(err)
+      }
+    }
+
   }
 }
 
