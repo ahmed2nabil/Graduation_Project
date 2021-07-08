@@ -10,13 +10,7 @@ const classIDs=new Schema({
     }
 }, {"_id" : false});
 
-const totalGrade=new Schema({
-    classID:
-    {type:mongoose.Schema.Types.ObjectId, 
-    ref:'classes'
-    },
-    tgrade:{type:Number, required:true},
-}, {"_id" : false});
+
 const studentSchema=new Schema({
     nid:
     {
@@ -44,7 +38,7 @@ const studentSchema=new Schema({
         ref:'departments'
     },
     classIDs:[classIDs],
-    totalGrade:[totalGrade]
+    totalGrade:[Number]
 });
 studentSchema.plugin(passportLocalMongoose);//make schema support passport-local-mongoose
 var students=mongoose.model('students',studentSchema);
