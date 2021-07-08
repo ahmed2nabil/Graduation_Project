@@ -6,6 +6,7 @@ const Courses    = require('../models/course');
 const Dept       = require('../models/department');
 const Students   = require('../models/student');
 var authenticate_admin = require('../authenticate_admin');
+const courses = require('../models/course');
 const adminroute = express.Router();
 
 adminroute.post('/login',authenticate_admin.isLocalAuthenticated,(req,res) => {
@@ -50,7 +51,7 @@ adminroute.get('/',authenticate_admin.verifyAdmin,(req,res)=>{
 
 adminroute.route('/allCourses')
 .get(authenticate_admin.verifyAdmin,(req,res,next) => {
-  Courses.find({})
+  Courses.find({deptID : req.body.deptID,academicYear : req.body.academicYear})
   .then(coursesData => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
@@ -128,10 +129,20 @@ Courses.findById(req.body.courseId)
 })
 ///// delete a student //////
 adminroute.delete('/course',authenticate_admin.verifyAdmin,(req,res,next) => {
-   Students.findByIdAndRemove(req.body.courseId)
+   Courses.findByIdAndRemove(req.body.courseId)
    .then(res.json({message:'course is deleted successfully'})
    ,(err)=>{next(err)})
    })
 //////////////////////////////
-
+// CLASSES ROUTES
+adminroute.route('/allClasses')
+.get((req,res,next) => {
+  classes.find({deptID : req.body.deptID})
+  .populate("courseID")
+  .then(coursesData => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(coursesData);
+  })
+})
 module.exports=adminroute;

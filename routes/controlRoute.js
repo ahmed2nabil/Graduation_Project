@@ -304,18 +304,19 @@ fast_csv.parseFile(req.file.path,{headers : true})
 })
 })
 //==============================helpers Function=======================================//
-function prettyControlProfile(controlinfo) {
+function prettyControlProfile(controlinfo){
+  console.log(controlinfo);
   let finalData = {
     controlName : controlinfo.name,
     year :  controlinfo.year,
+    yearID : controlinfo.academicYear,
     responsibleData : {
       name : controlinfo.responsibleIDs[0].responsibleID.name,
       username :controlinfo.responsibleIDs[0].responsibleID.username,
       email : controlinfo.responsibleIDs[0].responsibleID.email
      } ,
      departmentData :{
-      name : controlinfo.deptID.name,
-      sections: []
+      name : controlinfo.deptID.name
      },
 
   }
