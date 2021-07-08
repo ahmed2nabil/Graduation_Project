@@ -25,6 +25,10 @@ const courseSchema=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'department'
     },
+    classID:
+    {type:mongoose.Schema.Types.ObjectId,
+    ref:'classes'
+    },
     perfGrade : {
         type:Number, required:true 
     },
