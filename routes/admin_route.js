@@ -57,7 +57,8 @@ adminroute.route('/allCourses')
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.json({list:coursesData});
-  })
+  },(err) => next(err))
+  .catch((err) => next(err));
 })
 adminroute.route('/course')
 .get(authenticate_admin.verifyAdmin,(req,res,next) => {
