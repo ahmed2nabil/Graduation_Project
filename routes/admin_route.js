@@ -55,7 +55,7 @@ adminroute.route('/allCourses')
   .then(coursesData => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json(coursesData);
+      res.json({list:coursesData});
   })
 })
 adminroute.route('/course')
@@ -135,14 +135,71 @@ adminroute.delete('/course',authenticate_admin.verifyAdmin,(req,res,next) => {
    })
 //////////////////////////////
 // CLASSES ROUTES
-adminroute.route('/allClasses')
+adminroute.route('/class')
 .get((req,res,next) => {
-  classes.find({deptID : req.body.deptID})
+  classes.find({courseID: req.body.courseID})
   .populate("courseID")
-  .then(coursesData => {
+  .then(classData => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json(coursesData);
+      res.json(classData);
   })
 })
+.post((req,res,next) => {
+    const newClass = new classes({
+        courseCode : req.body.courseCode,
+        year  : req.body.year,
+        staffIDs: req.body.staffIDs ,
+        courseID:req.body.courseID,
+        students:req.body.students,
+     })
+     try{
+     Courses.insertMany(bewClass);
+     res.status(201).json(newClass)    }
+     catch(err){
+         res.status=400,
+         res.json({message:err.message})
+     }
+})
+
+///// update class data
+adminroute.put('/class',authenticate_admin.verifyAdmin,(req,res,cb) => {
+
+    classes.findById({courseID:req.body.courseID})
+    .then((classData)=>{
+        if (req.body.courseCode != null)
+        {
+          classData.courseCode = req.body.courseCode
+        }
+        if (req.body.year != null)
+        {
+          classData.year= req.body.year
+        }
+        if (req.body.staffIDs != null)
+        {
+          classData.staffIDs=req.body.staffIDs
+        }
+        if (req.body.courseID!= null)
+        {
+          classData.courseID=req.body.courseID
+        }
+        if (req.body.students!= null)
+        {
+          classData.students=req.body.students
+        }
+        try{
+    
+            classData.save();
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(classData);
+    
+        }
+    
+        catch(err)
+        {
+            res.status=400
+            res.json({message:err.message})
+        }})
+    })
 module.exports=adminroute;
