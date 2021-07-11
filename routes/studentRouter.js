@@ -24,8 +24,14 @@ studentRouter.post('/login',authenticate.isLocalAuthenticated, (req,res) => {
 });
 
 //////// get all students  ////////
-studentRouter.get('/',authenticate_admin.verifyAdmin,(req,res)=> {
-      Years.findById(req.body.yearId)
+studentRouter.post('/',authenticate_admin.verifyAdmin,(req,res)=> {
+    if(req.body.deptId == null ){
+        return res.status(404).json('deptId parameter required')
+    }
+    if(req.body.yearNumber == null ){
+        return res.status(404).json('yearNumber parameter required')
+    }
+      Years.findOne({deptId : req.body.deptId,yearNumber : req.body.yearNumber})
       .populate('students.studentId')
       .then((year)=>{
         res.statusCode = 200;
@@ -52,8 +58,17 @@ function getStudents(year,deptId){
 return allStudents;
 }
 //////// get a specific student by admin //////////
-studentRouter.get('/studentprofile',authenticate_admin.verifyAdmin,(req,res,next) => {
-    Years.findById(req.body.yearId)
+studentRouter.post('/studentprofile',authenticate_admin.verifyAdmin,(req,res,next) => {
+    if(req.body.deptId == null ){
+        return res.status(404).json('deptId parameter required')
+    }
+    if(req.body.yearNumber == null ){
+        return res.status(404).json('yearNumber parameter required')
+    }
+    if(req.body.studentId == null ){
+        return res.status(404).json('studentId parameter required')
+    }
+    Years.findOne({deptId: req.body.deptId,yearNumber :req.body.yearNumber})
     .then((year) => {
      res.statusCode = 200;
      res.setHeader('Content-Type', 'application/json');
@@ -118,6 +133,7 @@ studentRouter.get('/studentprofile',authenticate_admin.verifyAdmin,(req,res,next
 
 /// create new student
 studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
+
     const newStudent = new Students ({
         name : req.body.name,
         nid : req.body.nid,
@@ -140,7 +156,6 @@ studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
 studentRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
 
 Students.findById(req.body.studentId)
-
 .then((student)=>{
     console.log(student)
     if (req.body.name != null){
@@ -206,5 +221,4 @@ function studentData(student){
               return studentProfile
 }
   
-
 module.exports = studentRouter;

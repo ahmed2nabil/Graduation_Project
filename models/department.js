@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const staff=new Schema({
     staffId:
         {type:mongoose.Schema.Types.ObjectId,
-        ref:'teachingstaff'}
+        ref:'teachingStaff'}
 }, {"_id" : false});
 
 const Assistants=new Schema({

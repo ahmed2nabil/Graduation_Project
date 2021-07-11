@@ -182,7 +182,7 @@ async function getclass (req,res,next){
 //_________________________________Staff Route_________________________________________
 
 // Getting ALL Teaching Staff
-router.get('/',authenticate_admin.verifyAdmin,(req, res,next)=>{   
+router.post('/all',authenticate_admin.verifyAdmin,(req, res,next)=>{   
     
         departments.findById(req.body.deptId)
        .populate('staff.staffId')
@@ -212,7 +212,7 @@ return staffDa
 } 
 
 // GETTING ONE Specific Teaching Staff
- router.get('/staffprofile',authenticate_admin.verifyAdmin,getstaff,(req, res)=>{
+ router.post('/staffprofile',authenticate_admin.verifyAdmin,getstaff,(req, res)=>{
   
     res.send(staffData(res.specific_staff))
   

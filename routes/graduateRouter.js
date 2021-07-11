@@ -24,7 +24,7 @@ graduateRouter.post('/login',authenticate_grad.isLocalAuthenticated, (req,res) =
 });
 
 //////// get all  ////////
-graduateRouter.get('/',authenticate_admin.verifyAdmin,(req, res,next)=>{   
+graduateRouter.post('/all',authenticate_admin.verifyAdmin,(req, res,next)=>{   
     
     departments.findById(req.body.deptId)
    .populate('graduates.graduateId')
@@ -55,7 +55,7 @@ return GraduatesOfDepartment
 } 
 //////// get a specific graduate by admin //////////
 graduateRouter.route('/graduateprofile')
-.get(authenticate_admin.verifyAdmin,(req,res,next) => {
+.post(authenticate_admin.verifyAdmin,(req,res,next) => {
     Graduates.findById(req.body.graduateId)
     .populate({
         path: "classIDs.classID",

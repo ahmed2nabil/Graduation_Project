@@ -60,8 +60,8 @@ adminroute.route('/allCourses')
   },(err) => next(err))
   .catch((err) => next(err));
 })
-adminroute.route('/course')
-.get(authenticate_admin.verifyAdmin,(req,res,next) => {
+adminroute.route('/viewCourse')
+.post(authenticate_admin.verifyAdmin,(req,res,next) => {
   Courses.find({deptID : req.body.deptId,_id : req.body.courseId})
   .then(coursesData => {
       res.statusCode = 200;
