@@ -5,6 +5,7 @@ const classes    = require('../models/class');
 const Courses    = require('../models/course');
 const Dept       = require('../models/department');
 const Students   = require('../models/student');
+const Year       = require('../models/year');
 var authenticate_admin = require('../authenticate_admin');
 const courses = require('../models/course');
 const adminroute = express.Router();
@@ -50,7 +51,7 @@ adminroute.get('/',authenticate_admin.verifyAdmin,(req,res)=>{
 // course routes
 
 adminroute.route('/allCourses')
-.get(authenticate_admin.verifyAdmin,(req,res,next) => {
+.post(authenticate_admin.verifyAdmin,(req,res,next) => {
   Courses.find({deptID : req.body.deptID,academicYear : req.body.academicYear})
   .then(coursesData => {
       res.statusCode = 200;
@@ -127,7 +128,7 @@ Courses.findById(req.body.courseId)
         res.json({message:err.message})
     }})
 })
-///// delete a student //////
+///// delete a course //////
 adminroute.delete('/course',authenticate_admin.verifyAdmin,(req,res,next) => {
    Courses.findByIdAndRemove(req.body.courseId)
    .then(res.json({message:'course is deleted successfully'})
@@ -142,24 +143,25 @@ adminroute.route('/class')
   .then(classData => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json(classData);
+      res.json({list :classData});
   })
 })
 .post((req,res,next) => {
-    const newClass = new classes({
-        courseCode : req.body.courseCode,
-        year  : req.body.year,
-        staffIDs: req.body.staffIDs ,
-        courseID:req.body.courseID,
-        students:req.body.students,
-     })
-     try{
-     Courses.insertMany(bewClass);
-     res.status(201).json(newClass)    }
-     catch(err){
-         res.status=400,
-         res.json({message:err.message})
-     }
+    Year.find({deptId : req.body.deptID,yearNumber : req.body.yearNumber})
+    .populate("students.studentId")
+    .then((yearData)=>{
+        let stuArray = yearData.students;
+        const newClass = {
+            year  : req.body.year,
+            staffIDs: req.body.staffIDs ,
+            courseID:req.body.courseID,
+            courseCode : req.body.courseCode,
+            students : stuArray
+         }
+        // classes.insertMany(newClass);
+        res.status(201).json(yearData.students);  
+    },(err)=>{next(err)
+    })
 })
 
 ///// update class data

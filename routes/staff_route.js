@@ -279,24 +279,19 @@ return data;
 router.post('/',authenticate_admin.verifyAdmin,async (req, res)=>{
     const newstaff = new staff ({
        name : req.body.name,
-       nid : req.body.nid,
+       id : req.body.id,
        username: req.body.username ,
        email:req.body.email,
        phone:req.body.phone,
-       password:req.body.password,
        deptID:req.body.deptID,
     })
     try{
-        const newstaff_created = await newstaff.save()
-        res.status(201).json(newstaff_created)
-
-
-    }
-    catch(err)
-    {
-      res.status(400).json({message:err.message})
-    }
-    
+      staff.register(newstaff,req.body.password);
+      res.status(201).json(newstaff)    }
+      catch(err){
+          res.status=400,
+          res.json({message:err.message})
+      }
 })
 // UPDATING Teaching Staff
 router.patch('/',authenticate_admin.verifyAdmin,getstaff ,async (req, res)=>{
