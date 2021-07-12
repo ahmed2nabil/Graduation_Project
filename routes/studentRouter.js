@@ -153,7 +153,7 @@ studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
 
 })
 ///// update student data
-studentRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
+studentRouter.put('/update',authenticate_admin.verifyAdmin,(req,res,cb) => {
 
 Students.findById(req.body.studentId)
 .then((student)=>{
@@ -188,8 +188,8 @@ Students.findById(req.body.studentId)
     }})
 })
 ///// delete a student //////
-studentRouter.delete('/',authenticate_admin.verifyAdmin,(req,res,next) => {
-   Students.findByIdAndRemove(req.body.studentId)
+studentRouter.delete('/delete/:studentId',authenticate_admin.verifyAdmin,(req,res,next) => {
+   Students.findByIdAndRemove(req.params.studentId)
    .then(res.json({message:'student is deleted successfully'})
    ,(err)=>{next(err)})
    })

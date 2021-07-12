@@ -294,7 +294,7 @@ router.post('/',authenticate_admin.verifyAdmin,async (req, res)=>{
       }
 })
 // UPDATING Teaching Staff
-router.patch('/',authenticate_admin.verifyAdmin,getstaff ,async (req, res)=>{
+router.put('/update',authenticate_admin.verifyAdmin,getstaff ,async (req, res)=>{
  
     if (req.body.name != null)
     {
@@ -342,16 +342,10 @@ router.patch('/',authenticate_admin.verifyAdmin,getstaff ,async (req, res)=>{
     
 })
 // DELETING Teaching Staff
-router.delete('/',authenticate_admin.verifyAdmin,getstaff, async (req, res)=>{
-    try{
-      await res.specific_staff.remove()
-      res.json({message: "Deleted staff member "})
-    }
-    catch(err){
-         
-        res.status(500).json({message:err.message})
-    }
-    
+router.delete('/delete/:staffId',authenticate_admin.verifyAdmin,getstaff, async (req, res)=>{
+  staff.findByIdAndRemove(req.params.staffId)
+  .then(res.json({message:'student is deleted successfully'})
+  ,(err)=>{next(err)})
 })
 
 //__________________________Middleware_________________________________

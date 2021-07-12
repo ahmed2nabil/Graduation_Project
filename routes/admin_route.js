@@ -90,7 +90,7 @@ adminroute.post('/course', authenticate_admin.verifyAdmin,(req,res) => {
 
 })
 ///// update course data
-adminroute.put('/course',authenticate_admin.verifyAdmin,(req,res,cb) => {
+adminroute.put('/course/update',authenticate_admin.verifyAdmin,(req,res,cb) => {
 
 Courses.findById(req.body.courseId)
 .then((course)=>{
@@ -130,8 +130,8 @@ Courses.findById(req.body.courseId)
     }})
 })
 ///// delete a course //////
-adminroute.delete('/course',authenticate_admin.verifyAdmin,(req,res,next) => {
-   Courses.findByIdAndRemove(req.body.courseId)
+adminroute.delete('/course/delete/:courseId',authenticate_admin.verifyAdmin,(req,res,next) => {
+   Courses.findByIdAndRemove(req.params.courseId)
    .then(res.json({message:'course is deleted successfully'})
    ,(err)=>{next(err)})
    })

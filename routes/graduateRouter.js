@@ -139,7 +139,7 @@ graduateRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
 
 })
 ///// update graduate data
-graduateRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
+graduateRouter.put('/update',authenticate_admin.verifyAdmin,(req,res,cb) => {
 Graduates.findById(req.body.graduateId)
 .then((graduate)=>{
     if (req.body.name != null){
@@ -172,8 +172,8 @@ Graduates.findById(req.body.graduateId)
     }})
 })
 ///// delete a graduate //////
-graduateRouter.delete('/',authenticate_admin.verifyAdmin,(req,res,next) => {
-    Graduates.findByIdAndRemove(req.body.graduateId)
+graduateRouter.delete('/delete/:graduateId',authenticate_admin.verifyAdmin,(req,res,next) => {
+    Graduates.findByIdAndRemove(req.params.graduateId)
    .then(res.json({message:'graduate is deleted successfully'})
    ,(err)=>{next(err)})
    })
