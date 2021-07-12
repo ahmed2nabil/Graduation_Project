@@ -231,7 +231,8 @@ router.get('/:staffId',authenticate_staff.verifyStaff,(req, res,next)=>{
     .then((sta)=> {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json(staffData(sta));
+      const stData =staffData(sta);
+      res.json(stData);
     })
     .catch((err)=>next(err));
   }
@@ -254,7 +255,6 @@ function  staffData(staffdata) {
       classes :[]
 
   };
-  
   for (let i =0;i<staffdata.classes.length;i++)
   {
     let classinfo = {
