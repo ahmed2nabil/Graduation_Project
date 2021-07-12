@@ -12,24 +12,19 @@ const student=new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'students'},
     nid : {
-        type : String,
-        required : true
+        type : String
     },
     state: {
-        type : String,
-        required :true
+        type : String
     },
     attemp: {
-        type: Number ,
-        required : true
+        type: Number 
     },
     grade: {
-        type: Number ,
-        required : true
+        type: Number 
     },
     finalExam: {
-        type: Number ,
-        required : true
+        type: Number 
     }
     ,
     totalGrade: {

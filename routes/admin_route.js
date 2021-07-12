@@ -137,8 +137,7 @@ adminroute.delete('/course/delete/:courseId',authenticate_admin.verifyAdmin,(req
    })
 //////////////////////////////
 // CLASSES ROUTES
-adminroute.route('/class')
-.get((req,res,next) => {
+adminroute.post('/viewClass',authenticate_admin.verifyAdmin,(req,res,next) => {
   classes.find({courseID: req.body.courseID})
   .populate("courseID")
   .then(classData => {
@@ -147,9 +146,8 @@ adminroute.route('/class')
       res.json({list :classData});
   })
 })
-.post((req,res,next) => {
-    Year.find({deptId : req.body.deptID,yearNumber : req.body.yearNumber})
-    .populate("students.studentId")
+adminroute.post('/addClass',authenticate_admin.verifyAdmin,(req,res,next) => {
+    Year.findOne({deptId : req.body.deptID,yearNumber : req.body.yearNumber})
     .then((yearData)=>{
         let stuArray = yearData.students;
         const newClass = {
@@ -159,50 +157,36 @@ adminroute.route('/class')
             courseCode : req.body.courseCode,
             students : stuArray
          }
-        // classes.insertMany(newClass);
-        res.status(201).json(yearData.students);  
+        classes.insertMany(newClass);
+        res.status(201).json(newClass);  
     },(err)=>{next(err)
     })
 })
 
 ///// update class data
-adminroute.put('/class',authenticate_admin.verifyAdmin,(req,res,cb) => {
+adminroute.put('/updateClass',authenticate_admin.verifyAdmin,(req,res,cb) => {
+    classes.findOne({courseID :req.body.courseID})
+    .then((classData)=> {
+        if (req.body.courseCode != null){
+            classData.code =req.body.courseCode
+        }
+        if (req.body.year != null){
+            classData.year =req.body.year
+        }
+       
+        if (req.body.staffIDs != null){
+            classData.staffIDs =req.body.staffIDs
+        }
+        classData.save();       
+        res.json({message:'class is updated successfully',UpdateClass:classData})
 
-    classes.findById({courseID:req.body.courseID})
-    .then((classData)=>{
-        if (req.body.courseCode != null)
-        {
-          classData.courseCode = req.body.courseCode
-        }
-        if (req.body.year != null)
-        {
-          classData.year= req.body.year
-        }
-        if (req.body.staffIDs != null)
-        {
-          classData.staffIDs=req.body.staffIDs
-        }
-        if (req.body.courseID!= null)
-        {
-          classData.courseID=req.body.courseID
-        }
-        if (req.body.students!= null)
-        {
-          classData.students=req.body.students
-        }
-        try{
-    
-            classData.save();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(classData);
-    
-        }
-    
-        catch(err)
-        {
-            res.status=400
-            res.json({message:err.message})
-        }})
+    },(err)=>{next(err)})
+    })
+
+///// Delete class data
+adminroute.delete('/deleteClass/:courseId',authenticate_admin.verifyAdmin,(req,res,cb) => {
+    classes.findOneAndDelete({courseID :req.params.courseId})
+    .then(res.json({message:'class is deleted successfully'})
+    ,(err)=>{next(err)})
     })
 module.exports=adminroute;

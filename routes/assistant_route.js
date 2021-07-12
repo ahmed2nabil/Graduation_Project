@@ -90,7 +90,7 @@ assistantRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
 
 })
 ///// update assistant data
-assistantRouter.put('/',authenticate_admin.verifyAdmin,(req,res,cb) => {
+assistantRouter.put('/update',authenticate_admin.verifyAdmin,(req,res,cb) => {
 Assistants.findById(req.body.assistantId)
 .then((assistant)=>{
   if (req.body.name != null){
@@ -123,8 +123,8 @@ Assistants.findById(req.body.assistantId)
   }})
 })
 ///// delete a assistant //////
-assistantRouter.delete('/',authenticate_admin.verifyAdmin,(req,res,next) => {
-  Assistants.findByIdAndRemove(req.body.assistantId)
+assistantRouter.delete('/delete/asssitantId',authenticate_admin.verifyAdmin,(req,res,next) => {
+  Assistants.findByIdAndRemove(req.params.assistantId)
  .then(res.json({message:'assistant is deleted successfully'})
  ,(err)=>{next(err)})
  })
