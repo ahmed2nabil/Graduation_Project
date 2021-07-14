@@ -1,4 +1,4 @@
-"studentID","name","nid","state","attemp","grade","finalExam"
-"60219481e4675127e8376b99","Basma Esmail","1","N",1,40,70
-"606afe0c88f86f41d106f83b","Ahmed Nabil","3","N",1,30,43
-"60219412e4675127e8376b98","Ahmed Nobi","4","O",1,20,40
+"studentID","name","nid","state","attemp","grade","finalExam","totalGrade"
+"60219481e4675127e8376b99","Basma Esmail","1","N",1,30,60,
+"606afe0c88f86f41d106f83b","Ahmed Nabil","3","N",1,25,48,
+"60219412e4675127e8376b98","Ahmed Nobi","4","O",1,20,35,
