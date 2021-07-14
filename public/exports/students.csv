@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 "studentID","name","nid","state","attemp","grade","finalExam","totalGrade"
 "60219481e4675127e8376b99","Basma Esmail","1","N",1,30,60,
 "606afe0c88f86f41d106f83b","Ahmed Nabil","3","N",1,25,48,
 "60219412e4675127e8376b98","Ahmed Nobi","4","O",1,20,35,
+=======
+studentID,name,nid,state,attemp,grade,finalExam
+60eefdf267579ab1a9db78fa,Aya Mamdoh Mohamed,5,N,1,30,85
+60eefe2a67579ab1a9db78fb,Hosssam Badry Abdelfatah,6,N,1,50,95
+60eefe6267579ab1a9db78fc,Mahmoud Abdelsabor Rabiea,7,N,1,25,75
+>>>>>>> 943801c3e77314aaaef5b56492f870b3dec84d48

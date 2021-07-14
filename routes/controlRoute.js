@@ -110,7 +110,20 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
     .populate('courseID')
     .populate('students.studentID')
     .populate('students.studentID')
-    .then(async(classinfo) => {
+    .then((classinfo) => {
+
+      let  course = manipulateCourse(classinfo.courseID);
+      let stu = prettyAllStudentsClass(classinfo);
+      apply2PercentagToPass(stu,course);
+      apply2PercentagToUpgrade(stu,course);
+      saveGradesToStudents(classinfo.students,stu);
+      classinfo.save();
+      console.log(classinfo.students);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({course : course,students : stu});
+  },(err) => next(err)) 
+    /*.then(async(classinfo) => {
 
       let course_total_grade = classinfo.courseID.perfGrade + classinfo.courseID.finalGrade;
       let list_of_students =classinfo.students;
@@ -128,21 +141,9 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
 
       return classinfo;
    })
-  /*.then((classinfo) => {
-
-      let  course = manipulateCourse(classinfo.courseID);
-      let stu = prettyAllStudentsClass(classinfo);
-      apply2PercentagToPass(stu,course);
-      apply2PercentagToUpgrade(stu,course);
-      saveGradesToStudents(classinfo.students,stu);
-      classinfo.save();
-      console.log(classinfo.students);
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json({course : course,students : stu});
-  },(err) => next(err)) 
+  */
   .catch((err)=> next(err));
-*/
+
 })
 
 
@@ -401,6 +402,7 @@ controlRouter.route('/:staffId/:controlId/results/:yearId')
       }
     })
     .then((yearInfo)=>{
+      console.log(yearInfo)
       let result =results(yearInfo.students);
       
       res.json (result)
@@ -447,7 +449,8 @@ function results (list_of_students){
       }
       courseResult = {
         courseName:spc_class.courseID.name,
-        grade : percentage
+        percentage : percentage,
+        totalGrade :student_grade
       }
 
       student.results.push(courseResult);
@@ -619,8 +622,8 @@ function prettyAllStudentsClass(classinfo) {
           state : element.state,
           attemp : element.attemp,
           grade: element.grade,
-          finalExam : element.finalExam
-          // totalGrade : element.totalGrade
+          finalExam : element.finalExam,
+          totalGrade : element.totalGrade
       }
       arrayofstudents.push(temp);
   });
