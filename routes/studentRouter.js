@@ -50,7 +50,8 @@ function getStudents(year,deptId){
             nationalID:element.studentId.nid,
             email:element.studentId.email,
             username:element.studentId.username,
-            phone:element.studentId.phone
+            phone:element.studentId.phone,
+            department:element.studentId.deptID
 
         }; 
         allStudents.push(studentsData)      
@@ -113,14 +114,17 @@ studentRouter.post('/studentprofile',authenticate_admin.verifyAdmin,(req,res,nex
    .populate({
     path : 'classIDs.classID',
     populate : {
-      path : 'courseID'
+      path : 'courseID',
     }
   })
+  .populate('deptID')
+  .populate('yearID')
+ 
 //    .populate('classIDs.classID')
    .then((student) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    const studentprofile = studentData(student);
+    const studentprofile = studentData(student,req.params.studentId);
     res.json(studentprofile);
    },(err) => next(err))
    .catch((err) => next(err)); }
@@ -194,7 +198,7 @@ studentRouter.delete('/delete/:studentId',authenticate_admin.verifyAdmin,(req,re
    ,(err)=>{next(err)})
    })
 //////////////////////////////
-function studentData(student){
+function studentData(student,stuID){
     let studentProfile=
             {
                studentName: student.name,
@@ -202,8 +206,12 @@ function studentData(student){
                 email : student.email ,
                 phone :  student.phone,
                 nationalID:  student.nid, 
-                courses:[]
-            };
+                department: student.deptID.name,
+                year:student.yearID.name,
+                courses:[],
+                totalGrade:[] = student.totalGrade
+            };            
+            
             student.classIDs.forEach(element=>{
                 let course = {
                     name : element.classID.courseID.name,
