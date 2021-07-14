@@ -212,9 +212,11 @@ function studentData(student){
                     
                 }; 
                 element.classID.students.forEach(i=>{
+                    if(i.nid == student.nid) {
                     course.StudentPerformanceGrade=i.grade
                     course.StudentFinalExamGrade=i.finalExam
                     course.StudentTotalGrade=course.StudentPerformanceGrade+ course.StudentFinalExamGrade
+                    }
                 })
                 studentProfile.courses.push(course)
               })

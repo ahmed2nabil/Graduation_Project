@@ -617,8 +617,8 @@ function prettyAllStudentsClass(classinfo) {
           state : element.state,
           attemp : element.attemp,
           grade: element.grade,
-          finalExam : element.finalExam,
-          totalGrade : element.totalGrade
+          finalExam : element.finalExam
+          // totalGrade : element.totalGrade
       }
       arrayofstudents.push(temp);
   });
