@@ -44,8 +44,9 @@ const graduateSchema=new Schema({
     deptID:
     {
         type:mongoose.Schema.Types.ObjectId,
-        ref:'departments'
+        ref:'department'
     },
+    totalGrade:[Number],
     classIDs:[classIDs]
 });
 

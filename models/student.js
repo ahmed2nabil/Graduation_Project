@@ -35,7 +35,12 @@ const studentSchema=new Schema({
     deptID:
     {
         type:mongoose.Schema.Types.ObjectId,
-        ref:'departments'
+        ref:'department'
+    },
+    yearID:
+    {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'year'
     },
     classIDs:[classIDs],
     totalGrade:[Number]

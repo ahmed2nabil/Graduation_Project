@@ -103,6 +103,7 @@ graduateRouter.route('/:graduateId')
       path : 'courseID'
     }
   })
+  .populate('deptID')
    .then((graduate) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -186,7 +187,9 @@ function graduateData(graduate){
                 email : graduate.email ,
                 phone :  graduate.phone,
                 nationalID:  graduate.nid, 
-                courses:[]
+                department:graduate.deptID.name,
+                courses:[],
+                totalGrade:[]=graduate.totalGrade
             };
             graduate.classIDs.forEach(element=>{
                 let course = {
