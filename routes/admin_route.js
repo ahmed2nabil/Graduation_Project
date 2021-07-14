@@ -140,10 +140,27 @@ adminroute.delete('/course/delete/:courseId',authenticate_admin.verifyAdmin,(req
 adminroute.post('/viewClass',authenticate_admin.verifyAdmin,(req,res,next) => {
   classes.find({courseID: req.body.courseID})
   .populate("courseID")
+  .populate("staffIDs.staffID")
   .then(classData => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json({list :classData});
+      let staf = [];
+    //   classData.staffIDs.forEach(element => {
+    //       let st = {
+    //         name :element.staffID.name,
+    //         _id : element.staffID._id,
+    //         username : element.staffID.username,
+    //         email : element.staffID.email,
+    //         phone : element.staffID.phone,
+    //         nid : element.staffID.id
+    //       }
+    //       staf.push(st);
+    //   })
+      let count = 0;
+    //   classData.students.forEach(ele => {
+    //       count++;
+    //   })
+      res.json({classData :classData,Staff : staf,numofstudents: count});
   })
 })
 adminroute.post('/addClass',authenticate_admin.verifyAdmin,(req,res,next) => {

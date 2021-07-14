@@ -190,7 +190,6 @@ router.post('/all',authenticate_admin.verifyAdmin,(req, res,next)=>{
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         const staffDa =  getStaff(dept);
-        console.log(dept);
         res.json(staffDa);
         },(err)=>next(err))
         .catch((err)=> next(err));
@@ -203,7 +202,14 @@ router.post('/all',authenticate_admin.verifyAdmin,(req, res,next)=>{
   }
   let i=0; 
 dept.staff.forEach(element=>{
-  staffDa.StaffOfDepartment[i]=element.staffId.name
+  staffDa.StaffOfDepartment[i]= {
+    name :element.staffId.name,
+    _id : element.staffId._id,
+    username : element.staffId.username,
+    email : element.staffId.email,
+    phone : element.staffId.phone,
+    nid : element.staffId.id
+  }
   i++;
   }
   

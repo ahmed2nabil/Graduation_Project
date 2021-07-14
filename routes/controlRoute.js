@@ -135,7 +135,6 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
        apply2PercentagToUpgrade(stu,course);
       saveGradesToStudents(classinfo.students,stu);
       classinfo.save();
-      console.log(classinfo.students);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.json({course : course,students : stu});
@@ -640,6 +639,8 @@ function prettyAllStudentsClass(classinfo) {
   function apply2PercentagToPass(students,course){
     students.forEach(element => {
       let percentage = (element.totalGrade/course.totalGrade) * 100;
+      console.log(element.totalGrade);
+      console.log(percentage);
       element.percentagebefore = percentage;
       if (percentage < 50 && percentage >= 48) {
         element.percentageAfter  = percentage + 2 ;
