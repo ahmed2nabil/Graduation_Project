@@ -124,6 +124,7 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
       let list_of_students =classinfo.students;
       modify_returning_students_grades (course_total_grade,list_of_students);
       await classinfo.save();
+      res.json(classinfo)
 
       return classinfo;
    })
@@ -132,7 +133,7 @@ controlRouter.route('/:staffId/:controlId/classes/:classId')
       let  course = manipulateCourse(classinfo.courseID);
       let stu = prettyAllStudentsClass(classinfo);
       apply2PercentagToPass(stu,course);
-       apply2PercentagToUpgrade(stu,course);
+      apply2PercentagToUpgrade(stu,course);
       saveGradesToStudents(classinfo.students,stu);
       classinfo.save();
       console.log(classinfo.students);
@@ -552,6 +553,7 @@ fast_csv.parseFile(req.file.path,{headers : true})
            {
              stu.grade = row.grade ;
              stu.finalExam = row.finalExam;
+             stu.totalGrade = parseInt(row.grade) + parseInt(row.finalExam);
            }
          })
        }) ;
