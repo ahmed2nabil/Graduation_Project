@@ -46,6 +46,7 @@ function getStudents(year,deptId){
     if(year.deptId==deptId){
     year.students.forEach(element=>{
         let studentsData={
+            _id : element.studentId._id,
             name:element.studentId.name,
             nationalID:element.studentId.nid,
             email:element.studentId.email,
@@ -92,6 +93,7 @@ studentRouter.post('/studentprofile',authenticate_admin.verifyAdmin,(req,res,nex
          email :student.email ,
          phone : student.phone,
          nationalID: student.nid, 
+
          courses:[]
      };
  
@@ -136,7 +138,7 @@ studentRouter.post('/studentprofile',authenticate_admin.verifyAdmin,(req,res,nex
 }) 
 
 /// create new student
-studentRouter.post('/', authenticate_admin.verifyAdmin,(req,res) => {
+studentRouter.post('/add', authenticate_admin.verifyAdmin,(req,res) => {
 
     const newStudent = new Students ({
         name : req.body.name,
