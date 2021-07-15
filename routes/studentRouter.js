@@ -136,6 +136,68 @@ studentRouter.post('/studentprofile',authenticate_admin.verifyAdmin,(req,res,nex
     return next(err);
    }
 }) 
+//////// get a specific student old results  //////////
+studentRouter.get('/:studentId/oldResults',authenticate.verifyStudent ,(req,res,next) => {
+    if(req.user._id == req.params.studentId) {
+   Students.findById(req.params.studentId)
+   .populate({
+    path : 'classIDs.classID',
+    populate : {
+      path : 'courseID',
+    }
+  })
+  .populate('deptID')
+  .populate('yearID')
+ 
+//    .populate('classIDs.classID')
+   .then((student) => {
+
+    let oldRes = [];
+    let y ;
+    let re 
+    if(student.totalGrade.length != 0) {
+        for(let i =0 ; i< student.totalGrade.length-1;i++){
+       
+            switch(i) {
+                case 0:
+                    re = {"prep" : (student.totalGrade[i]/1500) * 100};
+                    break;                
+                case 1:
+                    re = {"first" :(student.totalGrade[i]/1500) * 100};
+            
+                    break;
+                case 2:
+                    re = {"second" :(student.totalGrade[i]/1500) * 100};
+
+                 break;    
+                 case 3:
+                    re = {"third" : (student.totalGrade[i]/1500) * 100 };
+
+                    break;
+                case 4:
+                    re = {"fourth" :(student.totalGrade[i]/1500) * 100};
+
+                 break;
+                }
+
+        oldRes.push(re);
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+    res.json(oldRes);
+    } else {
+        var err = new Error("you don't have any total Grade yet");
+        err.status = 403;
+        return next(err);
+    }
+   },(err) => next(err))
+   .catch((err) => next(err)); }
+   else {
+    var err = new Error("you don't have permission to do that");
+    err.status = 403;
+    return next(err);
+   }
+}) 
 
 /// create new student
 studentRouter.post('/add', authenticate_admin.verifyAdmin,(req,res) => {
